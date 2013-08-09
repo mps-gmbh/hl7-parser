@@ -108,8 +108,8 @@ segment_maps = {
 
 field_types = {
     'PID' : [
-        ('name', data_types.XPN),
-        ('mothers_maiden_name', data_types.XPN),
+        ('name', data_types.HL7_XPN),
+        ('mothers_maiden_name', data_types.HL7_XPN),
     ]
 }
 
@@ -127,6 +127,14 @@ class HL7Delimiters(object):
                                    field,
                                    escape,
                                    subsub_composite)
+                                   
+    def __unicode__(self):
+        return (self.composite + self.subcomposite + self.field + self.escape +
+                self.subsub_composite)
+
+    def __str__(self):
+        return (self.composite + self.subcomposite + self.field + self.escape +
+                self.subsub_composite)
 
 
 class HL7Segment(object):
@@ -162,10 +170,10 @@ class HL7Message(object):
     def __init__(self, message):
         self.message = message
         segments = defaultdict(list)
-        delimiters = HL7Delimiters(*message[3:8])
+        self.delimiters = HL7Delimiters(*message[3:8])
 
         for segment in message.splitlines():
-            segment = HL7Segment(segment, delimiters)
+            segment = HL7Segment(segment, self.delimiters)
             if segment_types[segment.type]['repeats']:
                 try:
                     segments[segment.type.lower()].append(segment)
@@ -190,5 +198,5 @@ class HL7Message(object):
 
 message = HL7Message(sample_message)
 
-print message.pid.name
-print message.msh.message_type
+#~ print message.pid.name
+#~ print message.msh.message_type

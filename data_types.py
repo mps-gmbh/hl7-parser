@@ -1,3 +1,6 @@
+# -*- encoding: utf-8 -*-
+from __future__ import unicode_literals
+
 from datetime import datetime
 
 class HL7DataType(object):
@@ -8,7 +11,7 @@ class HL7DataType(object):
         self.delimiters = delimiters
         self.sub_composites = composite.split(delimiters.subcomposite)
 
-        if component_map:
+        if self.component_map:
             for index, value in enumerate(self.sub_composites):
                 setattr(self, self.component_map[index], value)
 
@@ -16,7 +19,11 @@ class HL7DataType(object):
         return self.delimiters.subcomposite.join(self.sub_composites)
 
 class HL7_XPN(HL7DataType):
-    """ extended person name """
+    """
+        extended person name
+        example input:
+            EVERYMAN^ADAM^A^III
+    """
     component_map = [
         'family_name',
         'given_name',
@@ -50,6 +57,10 @@ class HL7_CX(HL7DataType):
     ]
 
 class HL7Datetime(HL7DataType):
+    """
+        example input:
+            198808181126
+    """
     component_map = [ 'datetime' ]
 
     def __init__(self, composite, delimiter):
@@ -77,7 +88,7 @@ class HL7Datetime(HL7DataType):
         if precision >= 19: microsecond = int(composite[16:19]) * 100
         else: microsecond = 0
 
-        if precision = 24: timezone = composite[19:24]
+        if precision == 24: timezone = composite[19:24]
         else: timezone = None
 
         # TODO: consider timezone
