@@ -17,8 +17,12 @@ class HL7DataType(object):
 
     def __str__(self):
         return self.delimiters.subcomposite.join(self.sub_composites)
+        
+    def __unicode__(self):
+        return self.delimiters.subcomposite.join(self.sub_composites)
+        
 
-class HL7_XPN(HL7DataType):
+class HL7_ExtendedPersonName(HL7DataType):
     """
         extended person name
         example input:
@@ -38,7 +42,7 @@ class HL7_XPN(HL7DataType):
 class HL7_SI(HL7DataType):
     component_map = [ 'sequence_id', ]
 
-class HL7_CX(HL7DataType):
+class HL7_ExtendedCompositeId(HL7DataType):
     """ extended composite id with check digit """
 
     component_map = [
@@ -111,7 +115,8 @@ class HL7_CWE(HL7DataType):
 class HL7_XAD(HL7DataType):
     pass
 
-class HL7_XTN(HL7DataType):
+class HL7_ExtendedTelecommunicationNumber(HL7DataType):
+    """ XTN - extended telecommunication number """
     pass
 
 class HL7_ST(HL7DataType):

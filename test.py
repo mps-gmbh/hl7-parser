@@ -10,6 +10,8 @@ class TestParsing(unittest.TestCase):
     """
         Test parsing of HL7 messages
     """
+    maxDiff = None
+    
     msg_string = ("MSH|^~\&|ADT1|GOOD HEALTH HOSPITAL|GHH LAB, INC.|GOOD HEALTH HOSPITAL|198808181126|SECURITY|ADT^A01^ADT_A01|MSG00001|P|2.7|\n"
                "EVN|A01|200708181123||\n"
                "PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C|2222 HOME STREET^^GREENSBORO^NC^27401-1020|GL|(555) 555-2004|(555)555-2004||S|| PATID12345001^2^M10^ADT1^AN^A|444333333|987654^NC|\n"
@@ -26,6 +28,33 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(unicode(expected_delimiters),
                          unicode(message.delimiters))
 
-    
+        # check patient data
+        self.assertEqual("ADAM", message.pid.patient_name.given_name)
+        self.assertEqual("EVERYMAN", message.pid.patient_name.family_name)
+
+    def test_message_roundtrip(self):
+        message = HL7Message(self.msg_string)
+
+        for x in message.pid.composites:
+            print unicode(x) + " " + repr(x)
+
+        # replace delimiters in message object
+        #~ message.delimiters = HL7Delimiters('$', '§', '=', '?', '!')
+        message.delimiters.composite = '$'
+        message.delimiters.subcomposite = '§'
+        message.delimiters.field = '='
+        #~ message.delimiters.escape = '?'
+        message.delimiters.subsub_composite = '!'
+        
+        msg_copy = self.msg_string
+        msg_copy = (msg_copy.replace('|', '$')
+                        .replace('^', '§')
+                        .replace('~', '=')
+                        #~ .replace('\\', '?')
+                        .replace('&', '!'))
+        #~ print msg_copy
+#~ 
+        #~ print "\n" + unicode(message)
+        #~ self.assertEqual(msg_copy, unicode(message))
 if __name__ == '__main__':
     unittest.main()

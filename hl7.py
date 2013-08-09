@@ -1,8 +1,9 @@
 #!/bin/env python
 
-from collections import defaultdict
 
 import data_types
+
+from hl7_definitions import segment_maps
 
 sample_message = """\
 MSH|^~\&|ADT1|GOOD HEALTH HOSPITAL|GHH LAB, INC.|GOOD HEALTH HOSPITAL|198808181126|SECURITY|ADT^A01^ADT_A01|MSG00001|P|2.7|
@@ -27,89 +28,12 @@ segment_types = {
     'PV1': {'optional': False, 'repeats': False, },
 }
 
-segment_maps = {
-    'MSH': [
-        'encoding_characters',
-        'sending_application',
-        'sending_facility',
-        'receiving_application',
-        'receiving_facility',
-        'message_datetime',
-        'security',
-        'message_type',
-        'message_control_id',
-        'processing_id',
-        'version_id',
-        'sequence_number',
-        'accept_acknowledgment_type',
-        'application_acknowledgment_type',
-        'country_code',
-        'character_set',
-        'principal_language_of_message',
-        'alternate_character_set_handling_scheme',
-        'message_profile_identifier',
-        'sending_responsible_organization',
-        'receiving_responsible_organization',
-        'sending_network_address',
-        'receiving_network_address',
-    ],
-    'EVN': [
-        'event_type_code',
-        'recorded_datetime',
-        'datetime_planned_event',
-        'event_reason_code',
-        'operator_id',
-        'event_occured',
-        'event_facility',
-    ],
-    'PID': [
-        'set_id_pid',
-        'patient_id',
-        'patient_identifier_list',
-        'alternate_patient_id_pid',
-        'patien_name',
-        'mothers_maiden_name',
-        'datetime_of_birth',
-        'administrative_sex',
-        'patient_alias',
-        'race',
-        'patient_address',
-        'county_code',
-        'phone_number_home',
-        'phone_number_business',
-        'primary_language',
-        'marital_status',
-        'religion',
-        'patient_account_number',
-        'ssn_number_patient',
-        'drivers_license_number_patient',
-        'mothers_identifier',
-        'ethnic_group',
-        'birth_place',
-        'multiple_birth_indicator',
-        'birth_order',
-        'citizenship',
-        'veterans_military_status',
-        'nationality',
-        'patient_death_date_and_time',
-        'patient_death_indicator',
-        'identity_unknown_indicator',
-        'identity_reliability_code',
-        'last_update_datetime',
-        'last_update_facility',
-        'species_code',
-        'breed_code',
-        'strain',
-        'production_class_code',
-        'tribal_citizenship',
-        'patient_telecommunication_information',
-    ],
-}
+
 
 field_types = {
     'PID' : [
-        ('name', data_types.HL7_XPN),
-        ('mothers_maiden_name', data_types.HL7_XPN),
+        ('patient_name', data_types.HL7_ExtendedPersonName),
+        ('mothers_maiden_name', data_types.HL7_ExtendedPersonName),
     ]
 }
 
@@ -133,9 +57,7 @@ class HL7Delimiters(object):
                 self.subsub_composite)
 
     def __str__(self):
-        return (self.composite + self.subcomposite + self.field + self.escape +
-                self.subsub_composite)
-
+        return self.__unicode__()
 
 class HL7Segment(object):
     def __init__(self, segment, delimiters=None):
@@ -153,12 +75,14 @@ class HL7Segment(object):
 
         if composites_map:
             for index, value in enumerate(self.composites[1:]):
-                field_name = composites_map[index]
-                DateType = fields.get(field_name, data_types.HL7DataType)
-                setattr(self, composites_map[index], DateType(value, delimiters))
+                field_name = composites_map[index][0]
+                DataType = fields.get(field_name, data_types.HL7DataType)
+                value = DataType(value, delimiters)
+                setattr(self, composites_map[index][0], value)
+                self.composites[index + 1] = value
 
     def __unicode__(self):
-        return self.delimiters.composite.join(self.composites)
+        return self.delimiters.composite.join(map(unicode, self.composites))
 
     def __str__(self):
         return self.__unicode__()
@@ -169,18 +93,36 @@ class HL7Segment(object):
 class HL7Message(object):
     def __init__(self, message):
         self.message = message
-        segments = defaultdict(list)
+        # list of segments of this message
+        # => list of tupels (segment_type, HL7Segment object)
+        segments = []
+        # dictionary which saves the position of the seqments in the
+        # list for fast lookup in __getattr__
+        self.segment_position = {}
         self.delimiters = HL7Delimiters(*message[3:8])
 
         for segment in message.splitlines():
+            # create an HLSegment object from the raw data of this segment
+            # (i.e. line)
             segment = HL7Segment(segment, self.delimiters)
-            if segment_types[segment.type]['repeats']:
-                try:
-                    segments[segment.type.lower()].append(segment)
-                except KeyError:
-                    segments[segment.type.lower()] = segment
+            # append it to the list of segments
+            segment_type = segment.type.lower()
+            segments.append((segment_type, segment))
+
+            position = len(segments) - 1
+
+            if segment_type in self.segment_position:
+                # if a segment of this type already exists make the postiton
+                # entry a list of positions               
+                if not isinstance(list, self.segment_position[segment_type]):
+                    self.segment_position[segment_type] = (
+                        [self.segment_position[segment_type], position] )
+                # if it already exists and is a list, just append the new position
+                else:
+                    self.segment_position[segment_type].append(position)
+            # if it doesn't exist just save the position
             else:
-                segments[segment.type.lower()] = segment
+               self.segment_position[segment_type] = position
 
         self.segments = segments
 
@@ -190,11 +132,17 @@ class HL7Message(object):
 
 
     def __getattr__(self, attr):
-        try:
-            return self.segments[attr]
-        except KeyError:
+        if attr in self.segment_position:
+            return self.segments[self.segment_position[attr]][1]
+        else:
             return getattr(self, attr)
 
+
+    def __unicode__(self):
+        return "\n".join([unicode(x[1]) for x in self.segments])
+
+    def __string__(self):
+        return self.__unicode__()
 
 message = HL7Message(sample_message)
 
