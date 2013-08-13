@@ -69,7 +69,9 @@ class HL7DataType(object):
         for index, value in enumerate(field_input):
             name = field_definitions[index][0]
             DataType = field_definitions[index][1]["type"]
-            setattr(self, name, DataType(value, self.delimiters))
+
+            setattr(self, name, DataType(value, self.delimiters,
+                                         use_delimiter="subcomponent_separator"))
 
     def __repr__(self):
         return "< %s >" % self.__unicode__()
@@ -184,9 +186,41 @@ class HL7_ExtendedCompositeId(HL7DataType):
 class HL7_CWE(HL7DataType):
     pass
 
-class HL7_ExtendedAdress(HL7DataType):
+class HL7_StreetAddress(HL7DataType):
+    """ SAD street address """
+
+    field_map = [
+        make_cell_type('street_or_mailing_address'),
+        make_cell_type('street_name'),
+        make_cell_type('dwelling_number')
+    ]
+
+class HL7_ExtendedAddress(HL7DataType):
     """ XAD extended Adress """
-    pass
+
+    field_map = [
+        make_cell_type('street_address', options = {"type": HL7_StreetAddress}),
+        make_cell_type('other_designation'),
+        make_cell_type('city'),
+        make_cell_type('state_or_province'),
+        make_cell_type('zip_or_postal_code'),
+        make_cell_type('country'),
+        make_cell_type('address_type'),
+        make_cell_type('other_geographic_designation'),
+        make_cell_type('country_code'),
+        make_cell_type('census_tract'),
+        make_cell_type('address_representation_code'),
+        make_cell_type('effective_date', options = {"type": HL7Datetime}),
+        make_cell_type('expiration_date', options = {"type": HL7Datetime}),
+        make_cell_type('expiration_reason'),
+        make_cell_type('bad_address_indicator'),
+        make_cell_type('address_usage'),
+        make_cell_type('addressee'),
+        make_cell_type('comment'),
+        make_cell_type('preference_order'),
+        make_cell_type('protection_code'),
+        make_cell_type('address_identifier')
+    ]
 
 class HL7_ExtendedTelecommunicationNumber(HL7DataType):
     """ XTN - extended telecommunication number """
