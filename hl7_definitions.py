@@ -6,7 +6,8 @@ from data_types import (HL7DataType,
                         HL7_ExtendedCompositeId,
                         HL7_ExtendedPersonName,
                         HL7_ExtendedAddress,
-                        HL7_ExtendedTelecommunicationNumber)
+                        HL7_ExtendedTelecommunicationNumber,
+                        HL7_CodedWithException)
 
 from data_types import make_cell_type
 
@@ -61,7 +62,7 @@ segment_maps = {
         make_cell_type('datetime_of_birth', options = {"type": HL7Datetime}),
         make_cell_type('administrative_sex'),
         make_cell_type('patient_alias'),
-        make_cell_type('race', options = {"repeats": True}),
+        make_cell_type('race', options = {"repeats": True, "type": HL7_CodedWithException}),
         make_cell_type('patient_address', options = {"required": True, "repeats": True, "type": HL7_ExtendedAddress}),
         make_cell_type('county_code'),
         make_cell_type('phone_number_home',

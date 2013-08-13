@@ -183,8 +183,22 @@ class HL7_ExtendedCompositeId(HL7DataType):
         make_cell_type('security_check_scheme')
     ]
 
-class HL7_CWE(HL7DataType):
-    pass
+class HL7_CodedWithException(HL7DataType):
+    """ CWE HL7_CodedWithException """
+
+    field_map = [
+        make_cell_type('id'),
+        make_cell_type('text'),
+        make_cell_type('name_of_coding_system'),
+        make_cell_type('alternate_identifier'),
+        make_cell_type('alternate_text'),
+        make_cell_type('name_of_alternate_coding_system'),
+        make_cell_type('coding_system_version_id'),
+        make_cell_type('alternate_coding_system_version_id'),
+        make_cell_type('original_text')
+        # NOTE: standard defines more fields which can be added if needed in
+        # the future
+    ]
 
 class HL7_StreetAddress(HL7DataType):
     """ SAD street address """
