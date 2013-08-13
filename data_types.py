@@ -3,24 +3,78 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
+def make_cell_type(name, options=None):
+    default_options = {
+        'required': False,
+        'repeats': False,
+        'type': HL7DataType
+    }
+    if options is None:
+        options = {}
+
+    default_options.update(options)
+    return (name, default_options)
+
+
 class HL7DataType(object):
     """ generic HL7 data type """
-    component_map = None
+    field_map = None
 
     def __init__(self, composite, delimiters):
         self.delimiters = delimiters
-        self.sub_composites = composite.split(delimiters.component_separator)
 
-        if self.component_map:
-            for index, value in enumerate(self.sub_composites):
-                setattr(self, self.component_map[index], value)
+        if self.field_map:
+            input_fields = composite.split(delimiters.component_separator)
+            self.set_attributes(self.field_map, input_fields)
+        else:
+            # if no field_map is given, treat this as a simple string value
+            self.value = composite
 
     def __str__(self):
-        return self.delimiters.component_separator.join(self.sub_composites)
+        return self.__unicode__()
         
     def __unicode__(self):
+        if not self.field_map:
+            return self.value
+        else:
+            attrs = []
+            # collect all attributes which are defined
+            for attr in self.field_map:
+                if hasattr(self, attr):
+                    attrs.append(getattr(self, attr))
+                else:
+                    break
+            return self.delimiters.component_separator.join(attrs)
+
         return self.delimiters.component_separator.join(self.sub_composites)
+
+    def set_attributes(self, field_definitions, field_input):
+        """
+            sets the data in field_input to instance attributes
+            as defined in field_definitions
+        """
+        for index, value in enumerate(field_input):
+            name = field_definitions[index][0]
+            DataType = field_definitions[index][1]["type"]
+            setattr(self, name, DataType(value, self.delimiters))
+
+    def __repr__(self):
+        return "< %s >" % self.__unicode__()
+
+class HL7RepeatingField(object):
+    """ generic repeating field """
+    def __init__(self, Type, composite, delimiters):
         
+        # split input data by repetition character
+        split_data = composite.split(delimiters.rep_separator)
+
+        self.list_ = [Type(x, delimiters) for x in split_data]
+
+    def __len__(self):
+        return len(self.list_)
+
+    def __getitem__(self, idx):
+        return self.list_[idx]
 
 class HL7_ExtendedPersonName(HL7DataType):
     """
@@ -28,36 +82,16 @@ class HL7_ExtendedPersonName(HL7DataType):
         example input:
             EVERYMAN^ADAM^A^III
     """
-    component_map = [
-        'family_name',
-        'given_name',
-        'middle_name',
-        'suffix',
-        'prefix',
-        'degree',
-        'name_type_code',
-    ]
-
-
-class HL7_SI(HL7DataType):
-    component_map = [ 'sequence_id', ]
-
-class HL7_ExtendedCompositeId(HL7DataType):
-    """ extended composite id with check digit """
-
-    component_map = [
-        'id_number',
-        'identifier_check_digit',
-        'check_digit_scheme',
-        'assigning_authority',
-        'identifier_type_code',
-        'assigning_facility',
-        'effective_date',
-        'expiration_date',
-        'assigning_jurisdiction',
-        'assigning_agency_or_department',
-        'security_check',
-        'security_check_scheme',
+    field_map = [
+        make_cell_type('family_name', options = {"required": True}),
+        make_cell_type('given_name'),
+        make_cell_type('middle_name'),
+        make_cell_type('suffix'),
+        make_cell_type('prefix'),
+        make_cell_type('degree'),
+        make_cell_type('name_type_code'),
+        make_cell_type('name_representation_code'),
+        make_cell_type('name_contact')
     ]
 
 class HL7Datetime(HL7DataType):
@@ -108,6 +142,27 @@ class HL7Datetime(HL7DataType):
     def __unicode__(self):
         return self.__str__()
 
+
+class HL7_SI(HL7DataType):
+    component_map = [ 'sequence_id', ]
+
+class HL7_ExtendedCompositeId(HL7DataType):
+    """ extended composite id with check digit """
+
+    field_map = [
+        make_cell_type('id_number', options = {"reqired": True}),
+        make_cell_type('identifier_check_digit'),
+        make_cell_type('check_digit_scheme'),
+        make_cell_type('assigning_authority'),
+        make_cell_type('identifier_type_code', options = {"required": True}),
+        make_cell_type('assigning_facility'),
+        make_cell_type('effective_date', options = {"type": HL7Datetime}),
+        make_cell_type('expiration_date', options = {"type": HL7Datetime}),
+        make_cell_type('assigning_jurisdiction'),
+        make_cell_type('assigning_agency_or_department'),
+        make_cell_type('security_check'),
+        make_cell_type('security_check_scheme')
+    ]
 
 class HL7_CWE(HL7DataType):
     pass

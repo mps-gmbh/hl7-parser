@@ -1,5 +1,5 @@
-#!/bin/env python
-
+# -*- encoding: utf-8 -*-
+from __future__ import unicode_literals
 
 import data_types
 
@@ -28,14 +28,6 @@ segment_types = {
     'PV1': {'optional': False, 'repeats': False, },
 }
 
-
-
-field_types = {
-    'PID' : [
-        ('patient_name', data_types.HL7_ExtendedPersonName),
-        ('mothers_maiden_name', data_types.HL7_ExtendedPersonName),
-    ]
-}
 
 required_segments = [key for (key, value) in segment_types.iteritems() if not value['optional']]
 repeating_segments = [key for (key, value) in segment_types.iteritems() if value['repeats']]
@@ -70,20 +62,28 @@ class HL7Segment(object):
         else:
             self.delimiters = delimiters
 
-        self.composites = segment.split(self.delimiters.field_separator)
-        self.type = self.composites[0]
+        # split into individual fields
+        self.fields = segment.split(self.delimiters.field_separator)
+        # the type of the segment is defined in the first field
+        self.type = self.fields[0]
 
-        fields = dict(field_types.get(self.type, {}))
+        # get the standard definitions for this type
+        field_definitions = segment_maps.get(self.type, None)
 
-        composites_map = segment_maps.get(self.type)
-
-        if composites_map:
-            for index, value in enumerate(self.composites[1:]):
-                field_name = composites_map[index][0]
-                DataType = fields.get(field_name, data_types.HL7DataType)
-                value = DataType(value, delimiters)
-                setattr(self, composites_map[index][0], value)
-                self.composites[index + 1] = value
+        # if definitions for this type are found iterate over
+        # fields in the input data
+        if field_definitions:
+            for index, value in enumerate(self.fields[1:]):
+                # get the field name
+                field_name = field_definitions[index][0]
+                # get the field Type (defaults to HL7DataType)
+                DataType = field_definitions[index][1]["type"]
+                if not field_definitions[index][1]["repeats"]:
+                    value = DataType(value, delimiters)
+                else:
+                    value = data_types.HL7RepeatingField(DataType, value, delimiters)
+                setattr(self, field_name, value)
+                self.fields[index + 1] = value
 
     def __unicode__(self):
         return self.delimiters.field_separator.join(map(unicode, self.composites))
@@ -131,7 +131,7 @@ class HL7Message(object):
         self.segments = segments
 
         self.header = self.msh
-        self.type = self.header.composites[8]
+        self.type = self.header.fields[8]
 
 
 

@@ -29,29 +29,38 @@ class TestParsing(unittest.TestCase):
                          unicode(message.delimiters))
 
         # check patient data
-        self.assertEqual("ADAM", message.pid.patient_name.given_name)
-        self.assertEqual("EVERYMAN", message.pid.patient_name.family_name)
+        self.assertEqual("ADAM", unicode(message.pid.patient_name[0].given_name))
+        self.assertEqual("EVERYMAN", unicode(message.pid.patient_name[0].family_name))
 
-    def test_message_roundtrip(self):
-        message = HL7Message(self.msg_string)
 
-        for x in message.pid.composites:
-            print unicode(x) + " " + repr(x)
+        # check correct parsing of extended composite ID
+        self.assertEqual(2, len(message.pid.patient_identifier_list))
 
-        # replace delimiters in message object
-        #~ message.delimiters = HL7Delimiters('$', '§', '=', '?', '!')
-        message.delimiters.composite = '$'
-        message.delimiters.subcomposite = '§'
-        message.delimiters.field = '='
-        #~ message.delimiters.escape = '?'
-        message.delimiters.subsub_composite = '!'
+        self.assertEqual("GOOD HEALTH HOSPITAL", unicode(message.pid.patient_identifier_list[0].assigning_facility))
+        self.assertEqual("123456789", unicode(message.pid.patient_identifier_list[1].id_number))
+
+        #~ self.assertEqual(
         
-        msg_copy = self.msg_string
-        msg_copy = (msg_copy.replace('|', '$')
-                        .replace('^', '§')
-                        .replace('~', '=')
+    #~ def test_message_roundtrip(self):
+        #~ message = HL7Message(self.msg_string)
+#~ 
+        #~ for x in message.pid.composites:
+            #~ print unicode(x) + " " + repr(x)
+#~ 
+        #~ # replace delimiters in message object
+        message.delimiters = HL7Delimiters('$', '§', '=', '?', '!')
+        #~ message.delimiters.composite = '$'
+        #~ message.delimiters.subcomposite = '§'
+        #~ message.delimiters.field = '='
+        message.delimiters.escape = '?'
+        #~ message.delimiters.subsub_composite = '!'
+        #~ 
+        #~ msg_copy = self.msg_string
+        #~ msg_copy = (msg_copy.replace('|', '$')
+                        #~ .replace('^', '§')
+                        #~ .replace('~', '=')
                         #~ .replace('\\', '?')
-                        .replace('&', '!'))
+                        #~ .replace('&', '!'))
         #~ print msg_copy
 #~ 
         #~ print "\n" + unicode(message)
