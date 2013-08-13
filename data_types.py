@@ -9,17 +9,17 @@ class HL7DataType(object):
 
     def __init__(self, composite, delimiters):
         self.delimiters = delimiters
-        self.sub_composites = composite.split(delimiters.subcomposite)
+        self.sub_composites = composite.split(delimiters.component_separator)
 
         if self.component_map:
             for index, value in enumerate(self.sub_composites):
                 setattr(self, self.component_map[index], value)
 
     def __str__(self):
-        return self.delimiters.subcomposite.join(self.sub_composites)
+        return self.delimiters.component_separator.join(self.sub_composites)
         
     def __unicode__(self):
-        return self.delimiters.subcomposite.join(self.sub_composites)
+        return self.delimiters.component_separator.join(self.sub_composites)
         
 
 class HL7_ExtendedPersonName(HL7DataType):
@@ -112,14 +112,12 @@ class HL7Datetime(HL7DataType):
 class HL7_CWE(HL7DataType):
     pass
 
-class HL7_XAD(HL7DataType):
+class HL7_ExtendedAdress(HL7DataType):
+    """ XAD extended Adress """
     pass
 
 class HL7_ExtendedTelecommunicationNumber(HL7DataType):
     """ XTN - extended telecommunication number """
-    pass
-
-class HL7_ST(HL7DataType):
     pass
 
 class HL7_ID(HL7DataType):

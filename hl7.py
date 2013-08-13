@@ -41,20 +41,24 @@ required_segments = [key for (key, value) in segment_types.iteritems() if not va
 repeating_segments = [key for (key, value) in segment_types.iteritems() if value['repeats']]
 
 class HL7Delimiters(object):
-    def __init__(self, composite, subcomposite, field, escape, subsub_composite):
-        (self.composite,
-         self.subcomposite,
-         self.field,
-         self.escape,
-         self.subsub_composite) = (composite,
-                                   subcomposite,
-                                   field,
-                                   escape,
-                                   subsub_composite)
+    """
+        Represents a set of different separators as defined by the HL7 standard
+    """
+    def __init__(self, field_separator, component_separator,
+                 rep_separator, escape_char, subcomponent_separator):
+        (self.field_separator,
+         self.component_separator,
+         self.rep_separator,
+         self.escape_char,
+         self.subcomponent_separator) = (field_separator,
+                                   component_separator,
+                                   rep_separator,
+                                   escape_char,
+                                   subcomponent_separator)
                                    
     def __unicode__(self):
-        return (self.composite + self.subcomposite + self.field + self.escape +
-                self.subsub_composite)
+        return (self.field_separator + self.component_separator + self.rep_separator + self.escape_char +
+                self.subcomponent_separator)
 
     def __str__(self):
         return self.__unicode__()
@@ -66,7 +70,7 @@ class HL7Segment(object):
         else:
             self.delimiters = delimiters
 
-        self.composites = segment.split(self.delimiters.composite)
+        self.composites = segment.split(self.delimiters.field_separator)
         self.type = self.composites[0]
 
         fields = dict(field_types.get(self.type, {}))
@@ -82,7 +86,7 @@ class HL7Segment(object):
                 self.composites[index + 1] = value
 
     def __unicode__(self):
-        return self.delimiters.composite.join(map(unicode, self.composites))
+        return self.delimiters.field_separator.join(map(unicode, self.composites))
 
     def __str__(self):
         return self.__unicode__()
