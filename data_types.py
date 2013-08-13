@@ -236,10 +236,6 @@ class HL7_ExtendedAddress(HL7DataType):
         make_cell_type('address_identifier')
     ]
 
-class HL7_ExtendedTelecommunicationNumber(HL7DataType):
-    """ XTN - extended telecommunication number """
-    pass
-
 class HL7_ID(HL7DataType):
     pass
 
