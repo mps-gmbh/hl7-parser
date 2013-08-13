@@ -20,27 +20,35 @@ class HL7DataType(object):
     """ generic HL7 data type """
     field_map = None
 
-    def __init__(self, composite, delimiters, level="component"):
+    def __init__(self, composite, delimiters, use_delimiter="component_separator"):
         self.delimiters = delimiters
+        # delimiter to use
+        self.delimiter = getattr(self.delimiters, use_delimiter)
 
-        self.input_fields = composite.split(delimiters.component_separator)
+        self.input_fields = composite.split(self.delimiter)
 
         if self.field_map:
             self.set_attributes(self.field_map, self.input_fields)
         else:
             # if no field_map is given, treat this as a generic data type
-            if not delimiters.component_separator in composite:
+            if not self.delimiter in composite:
                 self.value = composite
             else:
-                for f in self.input_fields:
-                    f = HL7DataType(f, delimiters)
+                for index, value in enumerate(self.input_fields):
+                    self.input_fields[index] = HL7DataType(value, delimiters,
+                                                    use_delimiter="subcomponent_separator")
 
     def __str__(self):
         return self.__unicode__()
         
-    def __unicode__(self):
+    def __unicode__(self):#
+        """ converts the datatype into a unicode string """
         if not self.field_map:
-            return self.value
+            """ if value is defined, this is just a simple string data type """
+            if hasattr(self, "value"):
+                return self.value
+            else:
+                return self.delimiter.join([x.__unicode__() for x in self.input_fields])
         else:
             attrs = []
             # collect all attributes which are defined
@@ -82,10 +90,8 @@ class HL7RepeatingField(object):
         return len(self.list_)
 
     def __getitem__(self, idx):
-        try:
-            return self.list_[idx]
-        except IndexError:
-            return self.list_[0][idx]
+        return self.list_[idx]
+
 
 class HL7_ExtendedPersonName(HL7DataType):
     """

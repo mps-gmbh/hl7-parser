@@ -31,7 +31,7 @@ class TestParsing(unittest.TestCase):
 
         # check patient data
         self.assertEqual("ADAM", unicode(message.pid.patient_name[0].given_name))
-        self.assertEqual("ADAM", unicode(message.pid[4][1]))
+        self.assertEqual("ADAM", unicode(message.pid[4][0][1]))
         self.assertEqual("EVERYMAN", unicode(message.pid.patient_name[0].family_name))
 
 
@@ -51,6 +51,7 @@ class TestParsing(unittest.TestCase):
         self.assertEqual("blubber", unicode(message.lol[1][0][1]))
         self.assertEqual("hehe", unicode(message.lol[1][1][0]))
         self.assertEqual("dumdeldi", unicode(message.lol[2][0][1]))
+        self.assertEqual("debbel", unicode(message.lol[2][1][1]))
                 
 if __name__ == '__main__':
     unittest.main()
