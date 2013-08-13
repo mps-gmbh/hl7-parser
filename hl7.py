@@ -84,12 +84,25 @@ class HL7Segment(object):
                     value = data_types.HL7RepeatingField(DataType, value, delimiters)
                 setattr(self, field_name, value)
                 self.fields[index + 1] = value
+        else:
+            # if the segment is unknown create a generic DataObject for each
+            # field
+            for index, value in enumerate(self.fields[1:]):
+                if self.delimiters.rep_separator in value:
+                    self.fields[index + 1] = data_types.HL7RepeatingField(data_types.HL7DataType, value, delimiters)
+                else:
+                    self.fields[index + 1] = data_types.HL7DataType(value, delimiters)
 
     def __unicode__(self):
         return self.delimiters.field_separator.join(map(unicode, self.composites))
 
     def __str__(self):
         return self.__unicode__()
+
+    def __getitem__(self, idx):
+        """ returns the requested component """
+        # shift index one down, since the type field is ignored
+        return self.fields[idx + 1]
 
 
 

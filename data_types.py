@@ -20,15 +20,20 @@ class HL7DataType(object):
     """ generic HL7 data type """
     field_map = None
 
-    def __init__(self, composite, delimiters):
+    def __init__(self, composite, delimiters, level="component"):
         self.delimiters = delimiters
 
+        self.input_fields = composite.split(delimiters.component_separator)
+
         if self.field_map:
-            input_fields = composite.split(delimiters.component_separator)
-            self.set_attributes(self.field_map, input_fields)
+            self.set_attributes(self.field_map, self.input_fields)
         else:
-            # if no field_map is given, treat this as a simple string value
-            self.value = composite
+            # if no field_map is given, treat this as a generic data type
+            if not delimiters.component_separator in composite:
+                self.value = composite
+            else:
+                for f in self.input_fields:
+                    f = HL7DataType(f, delimiters)
 
     def __str__(self):
         return self.__unicode__()
@@ -61,6 +66,9 @@ class HL7DataType(object):
     def __repr__(self):
         return "< %s >" % self.__unicode__()
 
+    def __getitem__(self, idx):
+        return self.input_fields[idx]
+
 class HL7RepeatingField(object):
     """ generic repeating field """
     def __init__(self, Type, composite, delimiters):
@@ -74,7 +82,10 @@ class HL7RepeatingField(object):
         return len(self.list_)
 
     def __getitem__(self, idx):
-        return self.list_[idx]
+        try:
+            return self.list_[idx]
+        except IndexError:
+            return self.list_[0][idx]
 
 class HL7_ExtendedPersonName(HL7DataType):
     """
