@@ -249,6 +249,13 @@ class HL7_NM(HL7DataType):
 class HL7_HD(HL7DataType):
     pass
 
+class HL7_ProcessingType(HL7DataType):
+    """ PT Processing type """
+    field_map = [
+        make_cell_type('processing_id'),
+        make_cell_type('processing_mode')
+    ]
+        
 class HL7_MessageType(HL7DataType):
     """ MSG Message Type """
 

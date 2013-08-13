@@ -12,7 +12,7 @@ class TestParsing(unittest.TestCase):
     """
     maxDiff = None
     
-    msg_string1 = ("MSH|^~\&|ADT1|GOOD HEALTH HOSPITAL|GHH LAB, INC.|GOOD HEALTH HOSPITAL|198808181126|SECURITY|ADT^A01^ADT_A01|MSG00001|P|2.7|\n"
+    msg_string1 = ("MSH|^~\&|ADT1|GOOD HEALTH HOSPITAL|GHH LAB, INC.|GOOD HEALTH HOSPITAL|198808181126|SECURITY|ADT^A01^ADT_A01|MSG00001|P^default|2.7|\n"
                "EVN|A01|200708181123||\n"
                "PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C^Caucasian|&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|GL|(555) 555-2004|(555)555-2004||S|| PATID12345001^2^M10^ADT1^AN^A|444333333|987654^NC|\n"
                "NK1|1|NUCLEAR^NELDA^W|SPO^SPOUSE||||NK^NEXT OF KIN\n"
@@ -61,6 +61,11 @@ class TestParsing(unittest.TestCase):
 
         self.assertEqual("A01", unicode(message.header.message_type.trigger_event))
         self.assertEqual("ADT", unicode(message.header.message_type.message_code))
+
+        # check correct parsing of processing type
+
+        self.assertEqual("P", unicode(message.header.processing_id.processing_id))
+        self.assertEqual("default", unicode(message.header.processing_id.processing_mode))
 
     def test_unknown_message_parse(self):
         message = HL7Message(self.msg_string1)
