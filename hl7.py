@@ -1,9 +1,9 @@
 # -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
 
-import data_types
+import hl7_data_types as data_types
 
-from hl7_definitions import segment_maps
+from hl7_segments import segment_maps
 
 sample_message = """\
 MSH|^~\&|ADT1|GOOD HEALTH HOSPITAL|GHH LAB, INC.|GOOD HEALTH HOSPITAL|198808181126|SECURITY|ADT^A01^ADT_A01|MSG00001|P|2.7|

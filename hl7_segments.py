@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
 
-from data_types import (HL7DataType,
+from hl7_data_types import (HL7DataType,
                         HL7Datetime,
                         HL7_MessageType,
                         HL7_ExtendedCompositeId,
@@ -11,7 +11,7 @@ from data_types import (HL7DataType,
                         HL7_ProcessingType,
                         HL7_VersionIdentifier)
 
-from data_types import make_cell_type
+from hl7_data_types import make_cell_type
 
 segment_maps = {
     'MSH': [

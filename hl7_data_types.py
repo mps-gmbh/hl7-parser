@@ -121,42 +121,53 @@ class HL7Datetime(HL7DataType):
     component_map = [ 'datetime' ]
 
     def __init__(self, composite, delimiter):
-        precision = len(composite)
-        year = int(composite[0:4])
+        if len(composite) == 0:
+            self.datetime = ""
+            self.isNull = True
+        else:
+            precision = len(composite)
+            year = int(composite[0:4])
 
-        if precision >= 6: month = int(composite[4:6])
-        else: month = 1
+            if precision >= 6: month = int(composite[4:6])
+            else: month = 1
 
-        if precision >= 8: day = int(composite[6:8])
-        else: day = 1
+            if precision >= 8: day = int(composite[6:8])
+            else: day = 1
 
-        if precision >= 10: hour = int(composite[8:10])
-        else: hour = 0
+            if precision >= 10: hour = int(composite[8:10])
+            else: hour = 0
 
-        if precision >= 12: minute = int(composite[10:12])
-        else: minute = 0
+            if precision >= 12: minute = int(composite[10:12])
+            else: minute = 0
 
-        if precision >= 14: second = int(composite[12:14])
-        else: second = 0
+            if precision >= 14: second = int(composite[12:14])
+            else: second = 0
 
-        if precision >= 16: tenth_second = int(composite[14:16])
-        else: tenth_second = 0
+            if precision >= 16: tenth_second = int(composite[14:16])
+            else: tenth_second = 0
 
-        if precision >= 19: microsecond = int(composite[16:19]) * 100
-        else: microsecond = 0
+            if precision >= 19: microsecond = int(composite[16:19]) * 100
+            else: microsecond = 0
 
-        if precision == 24: timezone = composite[19:24]
-        else: timezone = None
+            if precision == 24: timezone = composite[19:24]
+            else: timezone = None
 
-        # TODO: consider timezone
-        self.datetime = datetime(year, month, day, hour, minute, second, microsecond)
+            # TODO: consider timezone
+            self.datetime = datetime(year, month, day, hour, minute, second, microsecond)
+            self.isNull = False
 
     def isoformat(self):
-        return self.datetime.isoformat()
+        if self.isNull:
+            return ""
+        else:
+            return self.datetime.isoformat()
 
 
     def __str__(self):
-        return self.datetime.strftime('%Y%m%d%H%M%S')
+        if self.isNull:
+            return ""
+        else:        
+            return self.datetime.strftime('%Y%m%d%H%M%S')
 
     def __unicode__(self):
         return self.__str__()
