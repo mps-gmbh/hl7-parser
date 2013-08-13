@@ -9,7 +9,8 @@ from data_types import (HL7DataType,
                         HL7_ExtendedAddress,
                         HL7_ExtendedTelecommunicationNumber,
                         HL7_CodedWithException,
-                        HL7_ProcessingType)
+                        HL7_ProcessingType,
+                        HL7_VersionIdentifier)
 
 from data_types import make_cell_type
 
@@ -27,7 +28,7 @@ segment_maps = {
         make_cell_type('message_type', options = {"required": True, "type": HL7_MessageType}),
         make_cell_type('message_control_id', options = {"required": True}),
         make_cell_type('processing_id', options = {"required": True, "type": HL7_ProcessingType}),
-        make_cell_type('version_id', options = {"required": True}),
+        make_cell_type('version_id', options = {"required": True, "type": HL7_VersionIdentifier}),
         make_cell_type('sequence_number'),
         make_cell_type('accept_acknowledgment_type'),
         make_cell_type('application_acknowledgment_type'),

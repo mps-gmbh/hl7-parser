@@ -67,6 +67,10 @@ class TestParsing(unittest.TestCase):
         self.assertEqual("P", unicode(message.header.processing_id.processing_id))
         self.assertEqual("default", unicode(message.header.processing_id.processing_mode))
 
+        # check correct parsing of version identifier
+
+        self.assertEqual("2.7", unicode(message.header.version_id.version_id))
+
     def test_unknown_message_parse(self):
         message = HL7Message(self.msg_string1)
 

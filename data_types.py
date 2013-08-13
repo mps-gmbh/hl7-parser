@@ -252,17 +252,27 @@ class HL7_HD(HL7DataType):
 class HL7_ProcessingType(HL7DataType):
     """ PT Processing type """
     field_map = [
-        make_cell_type('processing_id'),
+        make_cell_type('processing_id', options = {"required": True}),
         make_cell_type('processing_mode')
+    ]
+
+class HL7_VersionIdentifier(HL7DataType):
+    """ VID version identifier """
+
+    field_map = [
+        make_cell_type('version_id', options = {"required": True}),
+        make_cell_type('internationalization_code', options = {"type": HL7_CodedWithException}),
+        make_cell_type('international_version_id', options = {"type": HL7_CodedWithException}),
+        
     ]
         
 class HL7_MessageType(HL7DataType):
     """ MSG Message Type """
 
     field_map = [
-        make_cell_type('message_code'),
-        make_cell_type('trigger_event'),
-        make_cell_type('message_structure')
+        make_cell_type('message_code', options = {"required": True}),
+        make_cell_type('trigger_event', options = {"required": True}),
+        make_cell_type('message_structure', options = {"required": True})
     ]
 
 data_types = {
