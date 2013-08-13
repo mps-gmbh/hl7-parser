@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from data_types import (HL7DataType,
                         HL7Datetime,
+                        HL7_MessageType,
                         HL7_ExtendedCompositeId,
                         HL7_ExtendedPersonName,
                         HL7_ExtendedAddress,
@@ -22,7 +23,7 @@ segment_maps = {
         make_cell_type('message_datetime',
                               options = {"repeats": True, "type": HL7Datetime}),
         make_cell_type('security'),
-        make_cell_type('message_type', options = {"required": True}),
+        make_cell_type('message_type', options = {"required": True, "type": HL7_MessageType}),
         make_cell_type('message_control_id', options = {"required": True}),
         make_cell_type('processing_id', options = {"required": True}),
         make_cell_type('version_id', options = {"required": True}),

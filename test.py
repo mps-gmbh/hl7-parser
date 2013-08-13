@@ -57,6 +57,10 @@ class TestParsing(unittest.TestCase):
 
         self.assertEqual("Caucasian", unicode(message.pid.race[0].text))
 
+        # check correct parsing of message type
+
+        self.assertEqual("A01", unicode(message.header.message_type.trigger_event))
+        self.assertEqual("ADT", unicode(message.header.message_type.message_code))
 
     def test_unknown_message_parse(self):
         message = HL7Message(self.msg_string1)

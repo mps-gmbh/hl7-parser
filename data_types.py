@@ -249,6 +249,14 @@ class HL7_NM(HL7DataType):
 class HL7_HD(HL7DataType):
     pass
 
+class HL7_MessageType(HL7DataType):
+    """ MSG Message Type """
+
+    field_map = [
+        make_cell_type('message_code'),
+        make_cell_type('trigger_event'),
+        make_cell_type('message_structure')
+    ]
 
 data_types = {
     "ST": "String Data",
