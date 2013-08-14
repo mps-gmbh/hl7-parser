@@ -1,17 +1,32 @@
+"""
+A simple HL7 parser. Simply construct a new Message object with a HL7 message
+and access the contents of the message via a
+
+>>> sample_message = \"\"\"\
+... MSH|^~\&|ADT1|GOOD HEALTH HOSPITAL|GHH LAB, INC.|GOOD HEALTH HOSPITAL|198808181126|SECURITY|ADT^A01^ADT_A01|MSG00001|P|2.7|
+... EVN|A01|200708181123||
+... PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C|2222 HOME STREET^^GREENSBORO^NC^27401-1020|GL|(555) 555-2004|(555)555-2004||S|| PATID12345001^2^M10^ADT1^AN^A|444333333|987654^NC|
+... NK1|1|NUCLEAR^NELDA^W|SPO^SPOUSE||||NK^NEXT OF KIN
+... PV1|1|I|2000^2012^01||||004777^ATTEND^AARON^A|||SUR||||ADM|A0|\"\"\"
+>>> message = HL7Message(sample_message)
+>>> print message.pid.patient_name
+EVERYMAN^ADAM^A^III
+>>> print message.pid.patient_name[0].family_name
+EVERYMAN
+>>> print message.pid.patient_name[0].given_name
+ADAM
+>>> print message.msh.message_type
+ADT^A01^ADT_A01
+"""
+
 # -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
+
 
 import hl7_data_types as data_types
 
 from hl7_segments import segment_maps
 
-sample_message = """\
-MSH|^~\&|ADT1|GOOD HEALTH HOSPITAL|GHH LAB, INC.|GOOD HEALTH HOSPITAL|198808181126|SECURITY|ADT^A01^ADT_A01|MSG00001|P|2.7|
-EVN|A01|200708181123||
-PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C|2222 HOME STREET^^GREENSBORO^NC^27401-1020|GL|(555) 555-2004|(555)555-2004||S|| PATID12345001^2^M10^ADT1^AN^A|444333333|987654^NC|
-NK1|1|NUCLEAR^NELDA^W|SPO^SPOUSE||||NK^NEXT OF KIN
-PV1|1|I|2000^2012^01||||004777^ATTEND^AARON^A|||SUR||||ADM|A0|
-"""
 
 
 message_types = {
@@ -47,7 +62,7 @@ class HL7Delimiters(object):
                                    rep_separator,
                                    escape_char,
                                    subcomponent_separator)
-                                   
+
     def __unicode__(self):
         return (self.field_separator + self.component_separator + self.rep_separator + self.escape_char +
                 self.subcomponent_separator)
@@ -94,7 +109,7 @@ class HL7Segment(object):
                     self.fields[index + 1] = data_types.HL7DataType(value, delimiters)
 
     def __unicode__(self):
-        return self.delimiters.field_separator.join(map(unicode, self.composites))
+        return self.delimiters.field_separator.join(map(unicode, self.fields))
 
     def __str__(self):
         return self.__unicode__()
@@ -130,7 +145,7 @@ class HL7Message(object):
 
             if segment_type in self.segment_position:
                 # if a segment of this type already exists make the postiton
-                # entry a list of positions               
+                # entry a list of positions
                 if not isinstance(list, self.segment_position[segment_type]):
                     self.segment_position[segment_type] = (
                         [self.segment_position[segment_type], position] )
@@ -161,7 +176,4 @@ class HL7Message(object):
     def __string__(self):
         return self.__unicode__()
 
-message = HL7Message(sample_message)
 
-#~ print message.pid.name
-#~ print message.msh.message_type

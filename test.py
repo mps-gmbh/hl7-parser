@@ -11,7 +11,7 @@ class TestParsing(unittest.TestCase):
         Test parsing of HL7 messages
     """
     maxDiff = None
-    
+
     msg_string1 = ("MSH|^~\&|ADT1|GOOD HEALTH HOSPITAL|GHH LAB, INC.|GOOD HEALTH HOSPITAL|198808181126|SECURITY|ADT^A01^ADT_A01|MSG00001|P^default|2.7|\n"
                "EVN|A01|200708181123||\n"
                "PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C^Caucasian|&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|GL|(555) 555-2004|(555)555-2004||S|| PATID12345001^2^M10^ADT1^AN^A|444333333|987654^NC|\n"
@@ -24,6 +24,22 @@ class TestParsing(unittest.TestCase):
                "EVN|A01|200708181123||\n"
                "PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C|&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|GL|(555) 555-2004|(555)555-2004||S|| PATID12345001^2^M10^ADT1^AN^A|444333333|987654^NC|"
                )
+
+    def test_datetime(self):
+        message = HL7Message(self.msg_string1)
+        self.assertEqual(unicode(message.pid.datetime_of_birth), '19610615')
+
+    def test_address(self):
+        message = HL7Message(self.msg_string1)
+        self.assertEqual(unicode(message.pid.patient_address), '&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros')
+
+
+    def test_simple_segments_parse(self):
+        message = HL7Message(self.msg_string1)
+
+        pid_seg = self.msg_string1.splitlines()[2]
+
+        self.assertEqual(unicode(message.pid), pid_seg)
 
     def test_message_parse(self):
         message = HL7Message(self.msg_string1)
@@ -81,6 +97,6 @@ class TestParsing(unittest.TestCase):
         self.assertEqual("hehe", unicode(message.lol[1][1][0]))
         self.assertEqual("dumdeldi", unicode(message.lol[2][0][1]))
         self.assertEqual("debbel", unicode(message.lol[2][1][1]))
-                
+
 if __name__ == '__main__':
     unittest.main()
