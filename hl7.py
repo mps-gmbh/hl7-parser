@@ -1,16 +1,21 @@
+# -*- encoding: utf-8 -*-
 """
-A simple HL7 parser. Simply construct a new Message object with a HL7 message
-and access the contents of the message via a
+A simple HL7 parser. Construct a new Message object with a HL7 message
+and access the contents of the message via object attributes. Segment fields
+can be accessed generically via a list or configured to be accesible via named
+attributes.
 
->>> sample_message = \"\"\"\
+A sample config for the PID-segment is included with this code.
+
+>>> sample_message = \"\"\"\\
 ... MSH|^~\&|ADT1|GOOD HEALTH HOSPITAL|GHH LAB, INC.|GOOD HEALTH HOSPITAL|198808181126|SECURITY|ADT^A01^ADT_A01|MSG00001|P|2.7|
 ... EVN|A01|200708181123||
-... PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C|2222 HOME STREET^^GREENSBORO^NC^27401-1020|GL|(555) 555-2004|(555)555-2004||S|| PATID12345001^2^M10^ADT1^AN^A|444333333|987654^NC|
+... PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III~Conqueror^Norman^the^II||19610615|M||C|2222 HOME STREET^^GREENSBORO^NC^27401-1020|GL|(555) 555-2004|(555)555-2004||S|| PATID12345001^2^M10^ADT1^AN^A|444333333|987654^NC|
 ... NK1|1|NUCLEAR^NELDA^W|SPO^SPOUSE||||NK^NEXT OF KIN
 ... PV1|1|I|2000^2012^01||||004777^ATTEND^AARON^A|||SUR||||ADM|A0|\"\"\"
 >>> message = HL7Message(sample_message)
 >>> print message.pid.patient_name
-EVERYMAN^ADAM^A^III
+EVERYMAN^ADAM^A^III~Conqueror^Norman^the^II
 >>> print message.pid.patient_name[0].family_name
 EVERYMAN
 >>> print message.pid.patient_name[0].given_name
@@ -19,33 +24,11 @@ ADAM
 ADT^A01^ADT_A01
 """
 
-# -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
 
-
 import hl7_data_types as data_types
-
 from hl7_segments import segment_maps
 
-
-
-message_types = {
-    'ADT^A04': "Register a patient",
-    'ADT^A08': "Update patient information",
-    'ADT^A01': "Admit/visit notification",
-}
-
-segment_types = {
-    'MSH': {'optional': False, 'repeats': False, },
-    'EVN': {'optional': False, 'repeats': False, },
-    'PID': {'optional': False, 'repeats': False, },
-    'NK1': {'optional': True, 'repeats': True, },
-    'PV1': {'optional': False, 'repeats': False, },
-}
-
-
-required_segments = [key for (key, value) in segment_types.iteritems() if not value['optional']]
-repeating_segments = [key for (key, value) in segment_types.iteritems() if value['repeats']]
 
 class HL7Delimiters(object):
     """
@@ -177,3 +160,6 @@ class HL7Message(object):
         return self.__unicode__()
 
 
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
