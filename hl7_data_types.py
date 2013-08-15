@@ -112,6 +112,9 @@ class HL7RepeatingField(object):
     def __unicode__(self):
         return self.delimiters.rep_separator.join(map(unicode, self.list_))
 
+    def __str__(self):
+        return self.__unicode__()
+
 
 class HL7_ExtendedPersonName(HL7DataType):
     """
