@@ -44,7 +44,7 @@ segment_maps = {
     'EVN': [
         make_cell_type('event_type_code'),
         make_cell_type('recorded_datetime', options = {"required": True, "type": HL7Datetime}),
-        make_cell_type('datetime_planned_event', options = {"type": HL7Datetime}), 
+        make_cell_type('datetime_planned_event', options = {"type": HL7Datetime}),
         make_cell_type('event_reason_code', options = {"type": HL7_CodedWithException}),
         make_cell_type('operator_id', options = {"repeats": True}),
         make_cell_type('event_occured'),
@@ -84,7 +84,7 @@ segment_maps = {
         make_cell_type('birth_order'),
         make_cell_type('citizenship', options = {"repeats": True}),
         make_cell_type('veterans_military_status'),
-        make_cell_type('nationality'), 
+        make_cell_type('nationality'),
         make_cell_type('patient_death_date_and_time'),
         make_cell_type('patient_death_indicator'),
         make_cell_type('identity_unknown_indicator'),
