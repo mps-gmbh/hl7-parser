@@ -2,7 +2,7 @@
 # -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
 
-from hl7 import HL7Message, HL7Delimiters
+from hl7 import HL7Message, HL7Segment, HL7Delimiters
 
 import unittest
 
@@ -49,6 +49,12 @@ class TestParsing(unittest.TestCase):
 
         self.assertEqual(unicode(message.nk1[0]), lines[3])
         self.assertEqual(unicode(message.nk1[1]), lines[4])
+
+    def test_trailing_segment_fields(self):
+        pid_string = "PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C|&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|GL|(555) 555-2004|(555)555-2004"
+        pid = HL7Segment(pid_string)
+        self.assertEqual(unicode(pid.ssn_number_patient), '')
+        self.assertEqual(unicode(pid), pid_string)
 
     def test_message_parse(self):
         message = HL7Message(self.msg_string1)

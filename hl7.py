@@ -55,13 +55,15 @@ class HL7Delimiters(object):
 
 class HL7Segment(object):
     def __init__(self, segment, delimiters=None):
-        if delimiters == None:
+        if delimiters is None:
             self.delimiters = HL7Delimiters(*"|^~\&")
         else:
             self.delimiters = delimiters
 
         # split into individual fields
         self.fields = segment.split(self.delimiters.field_separator)
+        self.fields_length = len(self.fields)
+
         # the type of the segment is defined in the first field
         self.type = self.fields[0]
 
@@ -71,15 +73,18 @@ class HL7Segment(object):
         # if definitions for this type are found iterate over
         # fields in the input data
         if field_definitions:
-            for index, value in enumerate(self.fields[1:]):
+            # Pad fields
+            self.fields += [''] * (len(field_definitions) + 1 - len(self.fields))
+            for index, field_definition in enumerate(field_definitions):
                 # get the field name
-                field_name = field_definitions[index][0]
+                field_name = field_definition[0]
                 # get the field Type (defaults to HL7DataType)
-                DataType = field_definitions[index][1]["type"]
-                if not field_definitions[index][1]["repeats"]:
-                    value = DataType(value, delimiters)
+                DataType = field_definition[1]["type"]
+                value = self.fields[index + 1]
+                if not field_definition[1]["repeats"]:
+                    value = DataType(value, self.delimiters)
                 else:
-                    value = data_types.HL7RepeatingField(DataType, value, delimiters)
+                    value = data_types.HL7RepeatingField(DataType, value, self.delimiters)
                 setattr(self, field_name, value)
                 self.fields[index + 1] = value
         else:
@@ -87,12 +92,12 @@ class HL7Segment(object):
             # field
             for index, value in enumerate(self.fields[1:]):
                 if self.delimiters.rep_separator in value:
-                    self.fields[index + 1] = data_types.HL7RepeatingField(data_types.HL7DataType, value, delimiters)
+                    self.fields[index + 1] = data_types.HL7RepeatingField(data_types.HL7DataType, value, self.delimiters)
                 else:
-                    self.fields[index + 1] = data_types.HL7DataType(value, delimiters)
+                    self.fields[index + 1] = data_types.HL7DataType(value, self.delimiters)
 
     def __unicode__(self):
-        return self.delimiters.field_separator.join(map(unicode, self.fields))
+        return self.delimiters.field_separator.join(map(unicode, self.fields[0:self.fields_length]))
 
     def __str__(self):
         return self.__unicode__()
