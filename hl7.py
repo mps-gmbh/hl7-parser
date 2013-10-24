@@ -129,7 +129,7 @@ class HL7Message(object):
             if segment_type in self.segment_position:
                 # if a segment of this type already exists make the postiton
                 # entry a list of positions
-                if not isinstance(list, self.segment_position[segment_type]):
+                if not isinstance(self.segment_position[segment_type], list):
                     self.segment_position[segment_type] = (
                         [self.segment_position[segment_type], position] )
                 # if it already exists and is a list, just append the new position
@@ -148,7 +148,11 @@ class HL7Message(object):
 
     def __getattr__(self, attr):
         if attr in self.segment_position:
-            return self.segments[self.segment_position[attr]][1]
+            positions = self.segment_position[attr]
+            if isinstance(positions, list):
+                return [self.segments[p][1] for p in positions]
+            else:
+                return self.segments[positions][1]
         else:
             return getattr(self, attr)
 
