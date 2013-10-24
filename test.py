@@ -2,7 +2,7 @@
 # -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
 
-from hl7 import HL7Message, HL7Delimiters
+from hl7 import HL7Message, HL7Segment, HL7Delimiters
 
 import unittest
 
@@ -16,6 +16,7 @@ class TestParsing(unittest.TestCase):
                "EVN|A01|200708181123||\n"
                "PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C^Caucasian|&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|GL|(555) 555-2004|(555)555-2004||S|| PATID12345001^2^M10^ADT1^AN^A|444333333|987654^NC|\n"
                "NK1|1|NUCLEAR^NELDA^W|SPO^SPOUSE||||NK^NEXT OF KIN\n"
+               "NK1|2|ATOMIC^NELLY^W|MOTHER||||NK^NEXT OF KIN\n"
                "PV1|1|I|2000^2012^01||||004777^ATTEND^AARON^A|||SUR||||ADM|A0|\n"
                "LOL|45|hihi^blubber~hehe^blimm|dumdidum&dumdeldi^dubbel&debbel|"
                )
@@ -40,6 +41,20 @@ class TestParsing(unittest.TestCase):
         pid_seg = self.msg_string1.splitlines()[2]
 
         self.assertEqual(unicode(message.pid), pid_seg)
+
+    def test_multiple_segments_parse(self):
+        message = HL7Message(self.msg_string1)
+
+        lines = self.msg_string1.splitlines()
+
+        self.assertEqual(unicode(message.nk1[0]), lines[3])
+        self.assertEqual(unicode(message.nk1[1]), lines[4])
+
+    def test_trailing_segment_fields(self):
+        pid_string = "PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C|&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|GL|(555) 555-2004|(555)555-2004"
+        pid = HL7Segment(pid_string)
+        self.assertEqual(unicode(pid.ssn_number_patient), '')
+        self.assertEqual(unicode(pid), pid_string)
 
     def test_message_parse(self):
         message = HL7Message(self.msg_string1)
