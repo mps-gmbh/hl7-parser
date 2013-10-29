@@ -107,6 +107,8 @@ class HL7Segment(object):
         # shift index one down, since the type field is ignored
         return self.fields[idx + 1]
 
+    def __len__(self):
+        return len(self.fields) - 1
 
 
 
