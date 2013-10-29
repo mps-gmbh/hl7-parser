@@ -167,10 +167,11 @@ class HL7Datetime(HL7DataType):
             if precision >= 14: second = int(composite[12:14])
             else: second = 0
 
-            if precision >= 16: tenth_second = int(composite[14:16])
+            # Skip the "." separator
+            if precision >= 17: tenth_second = int(composite[15:17])
             else: tenth_second = 0
 
-            if precision >= 19: microsecond = int(composite[16:19]) * 100
+            if precision >= 19: microsecond = int(composite[17:19]) * 100
             else: microsecond = 0
 
             if precision == 24: timezone = composite[19:24]
@@ -192,7 +193,8 @@ class HL7Datetime(HL7DataType):
         if self.isNull:
             return ""
         else:
-            return self.datetime.strftime('%Y%m%d%H%M%S')[:self.precision]
+            # HL7 dates are ISO 8601 without the decorators, i.e. "YYYYMMDDHHMMSS.UUUU[+|-ZZzz]"
+            return self.datetime.isoformat(str('-')).translate(None, str("-:"))[:self.precision]
 
     def __unicode__(self):
         return self.__str__()
