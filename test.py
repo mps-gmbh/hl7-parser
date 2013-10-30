@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from hl7 import HL7Message, HL7Segment, HL7Delimiters
+from hl7_data_types import HL7Datetime
 
 import unittest
 
@@ -29,6 +30,13 @@ class TestParsing(unittest.TestCase):
     def test_datetime(self):
         message = HL7Message(self.msg_string1)
         self.assertEqual(unicode(message.pid.datetime_of_birth), '19610615')
+        delimiters = HL7Delimiters(*"|^~\&")
+        old = "18710826"
+        dt = HL7Datetime(old, delimiters)
+        self.assertEqual(unicode(dt), old)
+        time = "19610615132733.0065"
+        dt = HL7Datetime(time, delimiters)
+        self.assertEqual(unicode(dt), time)
 
     def test_address(self):
         message = HL7Message(self.msg_string1)
