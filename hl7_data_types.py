@@ -92,6 +92,18 @@ class HL7DataType(object):
     def __getitem__(self, idx):
         return self.input_fields[idx]
 
+    def __len__(self):
+        return len(self.input_fields)
+
+    def __nonzero__(self):
+        if not self.field_map and hasattr(self, "value"):
+            return bool(self.value)
+        elif len(self.input_fields) == 1:
+            return bool(self.input_fields[0])
+        elif len(self.input_fields) > 1:
+            return True
+
+
 class HL7RepeatingField(object):
     """ generic repeating field """
     def __init__(self, Type, composite, delimiters):
@@ -196,6 +208,9 @@ class HL7Datetime(HL7DataType):
 
     def __unicode__(self):
         return self.__str__()
+
+    def __nonzero__(self):
+        return not self.isNull
 
 
 class HL7_SI(HL7DataType):

@@ -56,6 +56,38 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(unicode(pid.ssn_number_patient), '')
         self.assertEqual(unicode(pid), pid_string)
 
+    def test_len(self):
+        pid_string = "PID|1||PATID1234^^M11^ADT1^MR^HOSPITAL||EVERYMAN^ADAM^A^III||||||&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|"
+        pid = HL7Segment(pid_string)
+        # segment length
+        self.assertEqual(len(pid), 40)
+        # named field set
+        self.assertTrue(pid.set_id_pid)
+        # named field unset
+        self.assertFalse(pid.ssn_number_patient)
+        # HL7Datetime unset
+        self.assertFalse(pid.datetime_of_birth)
+        # list field set
+        self.assertTrue(pid.patient_identifier_list)
+        # list field length
+        self.assertEqual(len(pid.patient_identifier_list), 1)
+        self.assertTrue(pid.patient_identifier_list[0])
+        self.assertFalse(pid.patient_identifier_list[0].identifier_check_digit)
+
+        # test unrecognized segment
+        pid = HL7Segment("LOL|VALUE||^^^|")
+        self.assertEqual(len(pid), 4)
+        # value field set
+        self.assertTrue(pid[0])
+        self.assertEqual(len(pid[0]), 1)
+        # value field unset
+        self.assertFalse(pid[1])
+        # list field set
+        self.assertTrue(pid[2])
+        self.assertEqual(len(pid[2]), 4)
+        # list field element unset
+        self.assertFalse(pid[2][0])
+
     def test_message_parse(self):
         message = HL7Message(self.msg_string1)
 
