@@ -26,8 +26,8 @@ ADT^A01^ADT_A01
 
 from __future__ import unicode_literals
 
-import hl7_data_types as data_types
-from hl7_segments import segment_maps
+import hl7parser.hl7_data_types as data_types
+from hl7parser.hl7_segments import segment_maps
 
 
 class HL7Delimiters(object):

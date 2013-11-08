@@ -2,8 +2,8 @@
 # -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
 
-from hl7 import HL7Message, HL7Segment, HL7Delimiters
-from hl7_data_types import HL7Datetime
+from hl7parser import HL7Message, HL7Segment, HL7Delimiters
+from hl7parser.hl7_data_types import HL7Datetime
 
 import unittest
 
