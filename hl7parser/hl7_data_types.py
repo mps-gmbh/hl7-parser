@@ -143,7 +143,7 @@ class HL7_ExtendedPersonName(HL7DataType):
         make_cell_type('degree'),
         make_cell_type('name_type_code'),
         make_cell_type('name_representation_code'),
-        make_cell_type('name_contact')
+        make_cell_type('name_context')
     ]
 
 
