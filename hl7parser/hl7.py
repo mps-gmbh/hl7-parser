@@ -151,8 +151,6 @@ class HL7Message(object):
         self.header = self.msh
         self.type = self.header.fields[8]
 
-
-
     def __getattr__(self, attr):
         if attr in self.segment_position:
             positions = self.segment_position[attr]
@@ -161,8 +159,7 @@ class HL7Message(object):
             else:
                 return self.segments[positions][1]
         else:
-            return getattr(self, attr)
-
+            raise AttributeError("{0!r} object has no attribute {1!r}".format(self.__class__, attr))
 
     def __unicode__(self):
         return "\n".join([unicode(x[1]) for x in self.segments])
