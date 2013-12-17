@@ -27,6 +27,11 @@ class TestParsing(unittest.TestCase):
                "PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C|&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|GL|(555) 555-2004|(555)555-2004||S|| PATID12345001^2^M10^ADT1^AN^A|444333333|987654^NC|"
                )
 
+    msg_mrg = ("MSH|^~\&|HNAM_PM|HNA500|AIG||20131016140148||ADT^A34|Q150084042T145948315C489644\n"
+               "PID|1||3790333^^^MSH_MRN^MRN^MTSN~2175611^^^MSH_EMPI^CMRN^UPLOAD|195511^^^IID^DONOR ID^MTSN~Q3790333^^^MSQ_MRN^KMRN|EVERYMAN^ADAM^J^^^^CURRENT||19580321|M|||77 CRANFORD COURT^^NEW YORK^NY^10038^USA^HOME^^040|040|(212)555-1212^HOM\n"
+               "MRG|3150123^^^MSH_MRN^MRN^MTSN|Q3150123"
+               )
+
     def test_datetime(self):
         message = HL7Message(self.msg_string1)
         self.assertEqual(unicode(message.pid.datetime_of_birth), '19610615')
@@ -156,6 +161,16 @@ class TestParsing(unittest.TestCase):
         self.assertEqual("hehe", unicode(message.lol[1][1][0]))
         self.assertEqual("dumdeldi", unicode(message.lol[2][0][1]))
         self.assertEqual("debbel", unicode(message.lol[2][1][1]))
+
+    def test_mrg_message_parse(self):
+        message = HL7Message(self.msg_mrg)
+        self.assertEqual("A34", unicode(message.header.message_type.trigger_event))
+        mrg = message.mrg
+        self.assertTrue(mrg.prior_patient_identifier_list)
+        self.assertEqual(1, len(mrg.prior_patient_identifier_list))
+        self.assertTrue(mrg.prior_patient_identifier_list[0])
+        self.assertEqual("3150123", unicode(mrg.prior_patient_identifier_list[0].id_number))
+        self.assertEqual("Q3150123", unicode(mrg.prior_alternate_patient_id))
 
 if __name__ == '__main__':
     unittest.main()

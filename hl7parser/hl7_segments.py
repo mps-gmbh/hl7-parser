@@ -98,4 +98,15 @@ segment_maps = {
         make_cell_type('tribal_citizenship', options = {"repeats": True}),
         make_cell_type('patient_telecommunication_information', options = {"repeats": True})
     ],
+    "MRG": [
+        make_cell_type('prior_patient_identifier_list',
+                       options={"required": True, "repeats": True, "type": HL7_ExtendedCompositeId}),
+        make_cell_type('prior_alternate_patient_id'),
+        make_cell_type('prior_patient_account_number'),
+        make_cell_type('prior_patient_id'),
+        make_cell_type('prior_visit_number'),
+        make_cell_type('prior_alternate_visit_id'),
+        make_cell_type('prior_patient_name',
+                       options={"repeats": True, "type": HL7_ExtendedPersonName}),
+    ],
 }
