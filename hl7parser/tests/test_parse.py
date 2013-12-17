@@ -142,6 +142,10 @@ class TestParsing(unittest.TestCase):
 
         self.assertEqual("2.7", unicode(message.header.version_id.version_id))
 
+        def invalid_attr():
+            message.foobar
+        self.assertRaises(AttributeError, invalid_attr)
+
     def test_unknown_message_parse(self):
         message = HL7Message(self.msg_string1)
 
