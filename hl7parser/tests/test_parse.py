@@ -114,7 +114,9 @@ class TestParsing(unittest.TestCase):
         self.assertEqual("ADAM", unicode(message.pid.patient_name[0].given_name))
         self.assertEqual("ADAM", unicode(message.pid[4][0][1]))
         self.assertEqual("EVERYMAN", unicode(message.pid.patient_name[0].family_name))
-
+        # unset fields should still exist as attributes
+        self.assertTrue(message.pid.patient_name[0].prefix is None)
+        self.assertTrue(message.pid.patient_name[0].name_representation_code is None)
 
         # check correct parsing of extended composite ID
         self.assertEqual(2, len(message.pid.patient_identifier_list))

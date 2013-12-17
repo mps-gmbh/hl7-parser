@@ -65,8 +65,9 @@ class HL7DataType(object):
             attrs = []
             # collect all attributes which are defined
             for attr, options in self.field_map:
-                if hasattr(self, attr):
-                    attrs.append(getattr(self, attr))
+                value = getattr(self, attr)
+                if value is not None:
+                    attrs.append(value)
                 else:
                     break
             return self.delimiter.join(map(unicode, attrs))
@@ -79,12 +80,15 @@ class HL7DataType(object):
             as defined in field_definitions
         """
 
-        for index, value in enumerate(field_input):
-            name = field_definitions[index][0]
-            DataType = field_definitions[index][1]["type"]
-
-            setattr(self, name, DataType(value, self.delimiters,
-                                         use_delimiter="subcomponent_separator"))
+        input_length = len(field_input)
+        for index, definition in enumerate(field_definitions):
+            name = definition[0]
+            if index < input_length:
+                DataType = definition[1]["type"]
+                setattr(self, name, DataType(field_input[index], self.delimiters,
+                                             use_delimiter="subcomponent_separator"))
+            else:
+                setattr(self, name, None)
 
     def __repr__(self):
         return '<%s>' % self.__unicode__()
