@@ -41,6 +41,11 @@ segment_maps = {
         make_cell_type('sending_network_address'),
         make_cell_type('receiving_network_address'),
     ],
+    "MSA": [
+        make_cell_type('acknowledgement_code'),
+        make_cell_type('message_control_id'),
+        make_cell_type('text_message'),
+    ],
     'EVN': [
         make_cell_type('event_type_code'),
         make_cell_type('recorded_datetime', options = {"required": True, "type": HL7Datetime}),

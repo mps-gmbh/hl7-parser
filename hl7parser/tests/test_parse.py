@@ -32,6 +32,29 @@ class TestParsing(unittest.TestCase):
                "MRG|3150123^^^MSH_MRN^MRN^MTSN|Q3150123"
                )
 
+    successful_query_result = "\n".join((
+        "MSH|^~\&|pdv|krz|myappl|9270000|201411041444||ADR^A19|0001|P|2.2",
+        "MSA|AA|test234",
+        "QRD|201411041444|R|I|912268|||1^RD|3248239|DEM",
+        "PID|0001||3248239||Raabe^Max|Raabe|19980322|M|||Tiergartenstr. 12^^Berlin^^10785^D||0190/123456^^PH|||||||||||||D||||N",
+    ))
+
+    insuccessful_query_result = "\n".join((
+        "MSH|^~\&|pdv|krz|myappl|9270000|201411041444||ADR^A19|0001|P|2.2",
+        "MSA|AE|test234|2018|||2018^#WHO-FILTER enthält falschen Wert",
+    ))
+
+    def test_successful_query_status(self):
+        message = HL7Message(self.successful_query_result)
+
+        self.assertEqual(unicode(message.msa.acknowledgement_code), "AA")
+
+    def test_unsuccessful_query_status(self):
+        message = HL7Message(self.insuccessful_query_result)
+
+        self.assertEqual(unicode(message.msa.acknowledgement_code), "AE")
+        self.assertEqual(unicode(message.msa.text_message), "2018")
+
     def test_datetime(self):
         message = HL7Message(self.msg_string1)
         self.assertEqual(unicode(message.pid.datetime_of_birth), '19610615')
