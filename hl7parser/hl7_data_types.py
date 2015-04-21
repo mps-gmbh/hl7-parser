@@ -3,10 +3,11 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 
+
 def make_cell_type(name, options=None):
     """
-    helper method used to configure HL7DataType field maps. Provides some sensible
-    default values for HL7 data types.
+    helper method used to configure HL7DataType field maps. Provides some
+    sensible default values for HL7 data types.
     """
     default_options = {
         'required': False,
@@ -32,7 +33,8 @@ class HL7DataType(object):
     """
     field_map = None
 
-    def __init__(self, composite, delimiters, use_delimiter="component_separator"):
+    def __init__(
+            self, composite, delimiters, use_delimiter="component_separator"):
         self.delimiters = delimiters
         # delimiter to use
         self.delimiter = getattr(self.delimiters, use_delimiter)
@@ -47,13 +49,16 @@ class HL7DataType(object):
                 self.value = composite
             else:
                 for index, value in enumerate(self.input_fields):
-                    self.input_fields[index] = HL7DataType(value, delimiters,
-                                                    use_delimiter="subcomponent_separator")
+                    self.input_fields[index] = HL7DataType(
+                        value,
+                        delimiters,
+                        use_delimiter="subcomponent_separator"
+                    )
 
     def __str__(self):
         return self.__unicode__()
 
-    def __unicode__(self):#
+    def __unicode__(self):
         """ converts the datatype into a unicode string """
 
         if not self.field_map:
@@ -61,7 +66,8 @@ class HL7DataType(object):
             if hasattr(self, "value"):
                 return unicode(self.value)
             else:
-                return self.delimiter.join([unicode(x) for x in self.input_fields])
+                return self.delimiter.join(
+                    unicode(x) for x in self.input_fields)
         else:
             attrs = []
             # collect all attributes which are defined
@@ -86,8 +92,13 @@ class HL7DataType(object):
             name = definition[0]
             if index < input_length:
                 DataType = definition[1]["type"]
-                setattr(self, name, DataType(field_input[index], self.delimiters,
-                                             use_delimiter="subcomponent_separator"))
+                setattr(
+                    self, name,
+                    DataType(
+                        field_input[index],
+                        self.delimiters,
+                        use_delimiter="subcomponent_separator")
+                )
             else:
                 setattr(self, name, None)
 
@@ -140,7 +151,7 @@ class HL7_ExtendedPersonName(HL7DataType):
             EVERYMAN^ADAM^A^III
     """
     field_map = [
-        make_cell_type('family_name', options = {"required": True}),
+        make_cell_type('family_name', options={"required": True}),
         make_cell_type('given_name'),
         make_cell_type('middle_name'),
         make_cell_type('suffix'),
@@ -159,7 +170,7 @@ class HL7Datetime(HL7DataType):
         example input:
             198808181126
     """
-    component_map = [ 'datetime' ]
+    component_map = ['datetime']
 
     def __init__(self, composite, delimiter):
         if len(composite) == 0:
@@ -169,33 +180,35 @@ class HL7Datetime(HL7DataType):
             precision = len(composite)
             year = int(composite[0:4])
 
-            if precision >= 6: month = int(composite[4:6])
-            else: month = 1
+            if precision >= 6: month = int(composite[4:6])  # noqa
+            else: month = 1  #noqa
 
-            if precision >= 8: day = int(composite[6:8])
-            else: day = 1
+            if precision >= 8: day = int(composite[6:8])  # noqa
+            else: day = 1  #noqa
 
-            if precision >= 10: hour = int(composite[8:10])
-            else: hour = 0
+            if precision >= 10: hour = int(composite[8:10])  #noqa
+            else: hour = 0  #noqa
 
-            if precision >= 12: minute = int(composite[10:12])
-            else: minute = 0
+            if precision >= 12: minute = int(composite[10:12])  # noqa
+            else: minute = 0  # noqa
 
-            if precision >= 14: second = int(composite[12:14])
-            else: second = 0
+            if precision >= 14: second = int(composite[12:14])  # noqa
+            else: second = 0  # noqa
 
             # Skip the "." separator
-            if precision >= 17: tenth_second = int(composite[15:17])
-            else: tenth_second = 0
+            if precision >= 17: tenth_second = int(composite[15:17])  # noqa
+            else: tenth_second = 0  # noqa
 
-            if precision >= 19: microsecond = int(composite[17:19]) * 100
-            else: microsecond = 0
+            if precision >= 19:
+                microsecond = int(composite[17:19]) * 100
+            else: microsecond = 0  #noqa
 
-            if precision == 24: timezone = composite[19:24]
-            else: timezone = None
+            if precision == 24: timezone = composite[19:24]  # noqa
+            else: timezone = None  #noqa
 
             # TODO: consider timezone
-            self.datetime = datetime(year, month, day, hour, minute, second, microsecond)
+            self.datetime = datetime(
+                year, month, day, hour, minute, second, microsecond)
             self.isNull = False
             self.precision = precision
 
@@ -205,13 +218,14 @@ class HL7Datetime(HL7DataType):
         else:
             return self.datetime.isoformat()
 
-
     def __str__(self):
         if self.isNull:
             return ""
         else:
-            # HL7 dates are ISO 8601 without the decorators, i.e. "YYYYMMDDHHMMSS.UUUU[+|-ZZzz]"
-            return self.datetime.isoformat(str('-')).translate(None, str("-:"))[:self.precision]
+            # HL7 dates are ISO 8601 without the decorators, i.e.
+            # "YYYYMMDDHHMMSS.UUUU[+|-ZZzz]"
+            return self.datetime.isoformat(
+                str('-')).translate(None, str("-:"))[:self.precision]
 
     def __unicode__(self):
         return self.__str__()
@@ -221,21 +235,21 @@ class HL7Datetime(HL7DataType):
 
 
 class HL7_SI(HL7DataType):
-    component_map = [ 'sequence_id', ]
+    component_map = ['sequence_id']
 
 
 class HL7_ExtendedCompositeId(HL7DataType):
     """ extended composite id with check digit """
 
     field_map = [
-        make_cell_type('id_number', options = {"reqired": True}),
+        make_cell_type('id_number', options={"reqired": True}),
         make_cell_type('identifier_check_digit'),
         make_cell_type('check_digit_scheme'),
         make_cell_type('assigning_authority'),
-        make_cell_type('identifier_type_code', options = {"required": True}),
+        make_cell_type('identifier_type_code', options={"required": True}),
         make_cell_type('assigning_facility'),
-        make_cell_type('effective_date', options = {"type": HL7Datetime}),
-        make_cell_type('expiration_date', options = {"type": HL7Datetime}),
+        make_cell_type('effective_date', options={"type": HL7Datetime}),
+        make_cell_type('expiration_date', options={"type": HL7Datetime}),
         make_cell_type('assigning_jurisdiction'),
         make_cell_type('assigning_agency_or_department'),
         make_cell_type('security_check'),
@@ -275,7 +289,7 @@ class HL7_ExtendedAddress(HL7DataType):
     """ XAD extended Adress """
 
     field_map = [
-        make_cell_type('street_address', options = {"type": HL7_StreetAddress}),
+        make_cell_type('street_address', options={"type": HL7_StreetAddress}),
         make_cell_type('other_designation'),
         make_cell_type('city'),
         make_cell_type('state_or_province'),
@@ -286,8 +300,8 @@ class HL7_ExtendedAddress(HL7DataType):
         make_cell_type('country_code'),
         make_cell_type('census_tract'),
         make_cell_type('address_representation_code'),
-        make_cell_type('effective_date', options = {"type": HL7Datetime}),
-        make_cell_type('expiration_date', options = {"type": HL7Datetime}),
+        make_cell_type('effective_date', options={"type": HL7Datetime}),
+        make_cell_type('expiration_date', options={"type": HL7Datetime}),
         make_cell_type('expiration_reason'),
         make_cell_type('bad_address_indicator'),
         make_cell_type('address_usage'),
@@ -302,7 +316,7 @@ class HL7_ExtendedAddress(HL7DataType):
 class HL7_ProcessingType(HL7DataType):
     """ PT Processing type """
     field_map = [
-        make_cell_type('processing_id', options = {"required": True}),
+        make_cell_type('processing_id', options={"required": True}),
         make_cell_type('processing_mode')
     ]
 
@@ -311,9 +325,11 @@ class HL7_VersionIdentifier(HL7DataType):
     """ VID version identifier """
 
     field_map = [
-        make_cell_type('version_id', options = {"required": True}),
-        make_cell_type('internationalization_code', options = {"type": HL7_CodedWithException}),
-        make_cell_type('international_version_id', options = {"type": HL7_CodedWithException}),
+        make_cell_type('version_id', options={"required": True}),
+        make_cell_type('internationalization_code',
+                       options={"type": HL7_CodedWithException}),
+        make_cell_type('international_version_id',
+                       options={"type": HL7_CodedWithException}),
 
     ]
 
@@ -322,7 +338,7 @@ class HL7_MessageType(HL7DataType):
     """ MSG Message Type """
 
     field_map = [
-        make_cell_type('message_code', options = {"required": True}),
-        make_cell_type('trigger_event', options = {"required": True}),
-        make_cell_type('message_structure', options = {"required": True})
+        make_cell_type('message_code', options={"required": True}),
+        make_cell_type('trigger_event', options={"required": True}),
+        make_cell_type('message_structure', options={"required": True})
     ]
