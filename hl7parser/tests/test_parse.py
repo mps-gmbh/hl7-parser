@@ -7,6 +7,37 @@ from hl7parser.hl7_data_types import HL7Datetime
 
 import unittest
 
+
+class TestEncoding(unittest.TestCase):
+    """
+    Test correct handling of bytestrings and unicode strings
+    """
+
+    def test_bytestring_segment(self):
+        """ bytestring segment can be cast to unicode and bytestring """
+        segment = HL7Segment(b"FOO|Bääbabamm")
+        str(segment)
+        unicode(segment)
+
+    def test_unicode_segment(self):
+        """ unicode segment can be cast to unicode and bytestring """
+        segment = HL7Segment("FOO|Bääbabamm")
+        str(segment)
+        unicode(segment)
+
+    def test_bytestring_message(self):
+        """ bytestring message can be cast to unicode and bytestring """
+        message = HL7Message(b"MSH|Dingdong the witch is dead\nFOO|Bääbabamm")
+        str(message)
+        unicode(message)
+
+    def test_unicode_message(self):
+        """ unicode message can be cast to unicode and bytestring """
+        message = HL7Message("MSH|Dingdong the witch is dead\nFOO|Bääbabamm")
+        str(message)
+        unicode(message)
+
+
 class TestParsing(unittest.TestCase):
     """
         Test parsing of HL7 messages

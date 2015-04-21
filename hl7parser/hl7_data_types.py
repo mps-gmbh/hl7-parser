@@ -55,12 +55,13 @@ class HL7DataType(object):
 
     def __unicode__(self):#
         """ converts the datatype into a unicode string """
+
         if not self.field_map:
             """ if value is defined, this is just a simple string data type """
             if hasattr(self, "value"):
-                return self.value
+                return unicode(self.value)
             else:
-                return self.delimiter.join([x.__unicode__() for x in self.input_fields])
+                return self.delimiter.join([unicode(x) for x in self.input_fields])
         else:
             attrs = []
             # collect all attributes which are defined

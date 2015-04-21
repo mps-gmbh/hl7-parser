@@ -53,12 +53,18 @@ class HL7Delimiters(object):
     def __str__(self):
         return self.__unicode__()
 
+
 class HL7Segment(object):
     def __init__(self, segment, delimiters=None):
         if delimiters is None:
             self.delimiters = HL7Delimiters(*"|^~\&")
         else:
             self.delimiters = delimiters
+
+        try:
+            segment = segment.decode("utf-8")
+        except UnicodeEncodeError:
+            pass
 
         # split into individual fields
         self.fields = segment.split(self.delimiters.field_separator)
@@ -100,7 +106,7 @@ class HL7Segment(object):
         return self.delimiters.field_separator.join(map(unicode, self.fields[0:self.fields_length]))
 
     def __str__(self):
-        return self.__unicode__()
+        return self.__unicode__().encode("utf-8")
 
     def __getitem__(self, idx):
         """ returns the requested component """
@@ -164,8 +170,8 @@ class HL7Message(object):
     def __unicode__(self):
         return "\n".join([unicode(x[1]) for x in self.segments])
 
-    def __string__(self):
-        return self.__unicode__()
+    def __str__(self):
+        return self.__unicode__().encode("utf-8")
 
 
 if __name__ == "__main__":
