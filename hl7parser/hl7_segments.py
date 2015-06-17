@@ -10,7 +10,10 @@ from hl7parser.hl7_data_types import (
     HL7_CodedWithException,
     HL7_ProcessingType,
     HL7_VersionIdentifier,
+    HL7_PersonLocation,
 )
+
+from hl7parser import hl7_data_types
 
 from hl7parser.hl7_data_types import make_cell_type
 
@@ -185,6 +188,48 @@ segment_maps = {
                 "repeats": True,
                 "type": HL7_ExtendedPersonName
             }
+        ),
+    ],
+    "PV1": [
+        make_cell_type("set_id"),
+        make_cell_type(
+            "patient_class",
+            options={
+                "required": True,
+                "type": HL7_CodedWithException,
+            }
+        ),
+        make_cell_type(
+            "assigned_patient_location",
+            options={"type": HL7_PersonLocation}
+        ),
+        make_cell_type(
+            "admission_type",
+            options={"type": HL7_CodedWithException}
+        ),
+        make_cell_type(
+            "preadmit_number",
+            options={"type": HL7_ExtendedCompositeId},
+        ),
+        make_cell_type(
+            "prior_patient_location",
+            options={"type": HL7_PersonLocation}
+        ),
+        make_cell_type(
+            "attending_doctor",
+            options={"type": hl7_data_types.HL7_XCN_ExtendedCompositeID}
+        ),
+        make_cell_type(
+            "referring_doctor",
+            options={"type": hl7_data_types.HL7_XCN_ExtendedCompositeID}
+        ),
+        make_cell_type(
+            "consulting_doctor",
+            options={"type": hl7_data_types.HL7_XCN_ExtendedCompositeID}
+        ),
+        make_cell_type(
+            "hospital_service",
+            options={"type": HL7_CodedWithException}
         ),
     ],
 }

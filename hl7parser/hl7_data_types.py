@@ -239,7 +239,7 @@ class HL7_SI(HL7DataType):
 
 
 class HL7_ExtendedCompositeId(HL7DataType):
-    """ extended composite id with check digit """
+    """ CX extended composite id with check digit """
 
     field_map = [
         make_cell_type('id_number', options={"reqired": True}),
@@ -341,4 +341,37 @@ class HL7_MessageType(HL7DataType):
         make_cell_type('message_code', options={"required": True}),
         make_cell_type('trigger_event', options={"required": True}),
         make_cell_type('message_structure', options={"required": True})
+    ]
+
+
+class HL7_PersonLocation(HL7DataType):
+    """ PL person location """
+
+    field_map = [
+        make_cell_type('point_of_care'),
+        make_cell_type('room'),
+        make_cell_type('bed'),
+        make_cell_type('facility'),
+        make_cell_type('location_status'),
+        make_cell_type('person_location_type'),
+        make_cell_type('building'),
+        make_cell_type('floor'),
+        make_cell_type('location_description'),
+        make_cell_type('comprehensive_location_identifier'),
+        make_cell_type('assigning_authority_for_location'),
+    ]
+
+
+class HL7_XCN_ExtendedCompositeID(HL7DataType):
+    """ XCN extended composite ID number and name for persons """
+    field_map = [
+        make_cell_type("person_identifier"),
+        make_cell_type("family_name"),
+        make_cell_type("given_name"),
+        make_cell_type("second_name"),
+        make_cell_type("suffix"),
+        make_cell_type("prefix"),
+        make_cell_type("degree"),
+        # NOTE: standard defines more fields which can be added if needed in
+        # the future
     ]

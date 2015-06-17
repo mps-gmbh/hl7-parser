@@ -228,5 +228,33 @@ class TestParsing(unittest.TestCase):
         self.assertEqual("3150123", unicode(mrg.prior_patient_identifier_list[0].id_number))
         self.assertEqual("Q3150123", unicode(mrg.prior_alternate_patient_id))
 
+    def test_pv1_segment(self):
+        segment = HL7Segment(
+            "PV1|1|I|2000^2012^01||||004777^ATTEND^AARON^A|||SUR||||ADM|A0|"
+        )
+
+        self.assertEqual(unicode(segment.patient_class), "I")
+
+        self.assertEqual(
+            unicode(segment.assigned_patient_location.point_of_care), "2000")
+        self.assertEqual(
+            unicode(segment.assigned_patient_location.room), "2012")
+        self.assertEqual(
+            unicode(segment.assigned_patient_location.bed), "01")
+
+        self.assertEqual(
+            unicode(segment.attending_doctor.person_identifier), "004777")
+        self.assertEqual(
+            unicode(segment.attending_doctor.given_name), "AARON")
+        self.assertEqual(
+            unicode(segment.attending_doctor.family_name), "ATTEND")
+
+        self.assertEqual(
+            unicode(segment.attending_doctor.second_name), "A")
+
+        self.assertEqual(
+            unicode(segment.hospital_service), "SUR")
+
+
 if __name__ == '__main__':
     unittest.main()
