@@ -375,3 +375,11 @@ class HL7_XCN_ExtendedCompositeID(HL7DataType):
         # NOTE: standard defines more fields which can be added if needed in
         # the future
     ]
+
+
+class HL7_FinancialClass(HL7DataType):
+    """ FC financial class """
+    field_map = [
+        make_cell_type("financial_class_code", options={"type": HL7_CodedWithException}),
+        make_cell_type("effective_date", options={"type": HL7Datetime}),
+    ]
