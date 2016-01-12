@@ -199,37 +199,68 @@ segment_maps = {
                 "type": HL7_CodedWithException,
             }
         ),
-        make_cell_type(
-            "assigned_patient_location",
-            options={"type": HL7_PersonLocation}
-        ),
-        make_cell_type(
-            "admission_type",
-            options={"type": HL7_CodedWithException}
-        ),
-        make_cell_type(
-            "preadmit_number",
-            options={"type": HL7_ExtendedCompositeId},
-        ),
-        make_cell_type(
-            "prior_patient_location",
-            options={"type": HL7_PersonLocation}
-        ),
+        make_cell_type("assigned_patient_location", options={"type": HL7_PersonLocation}),
+        make_cell_type("admission_type", options={"type": HL7_CodedWithException}),
+        make_cell_type("preadmit_number", options={"type": HL7_ExtendedCompositeId}),
+        make_cell_type("prior_patient_location", options={"type": HL7_PersonLocation}),
         make_cell_type(
             "attending_doctor",
-            options={"type": hl7_data_types.HL7_XCN_ExtendedCompositeID}
+            options={"type": hl7_data_types.HL7_XCN_ExtendedCompositeID, "repeats": True}
         ),
         make_cell_type(
             "referring_doctor",
-            options={"type": hl7_data_types.HL7_XCN_ExtendedCompositeID}
+            options={"type": hl7_data_types.HL7_XCN_ExtendedCompositeID, "repeats": True}
         ),
         make_cell_type(
             "consulting_doctor",
-            options={"type": hl7_data_types.HL7_XCN_ExtendedCompositeID}
+            options={"type": hl7_data_types.HL7_XCN_ExtendedCompositeID, "repeats": True}
         ),
+        make_cell_type("hospital_service", options={"type": HL7_CodedWithException}),
+        make_cell_type("temporary_location", options={"type": HL7_PersonLocation}),
+        make_cell_type("preadmit_test_indicator", options={"type": HL7_CodedWithException}),
+        make_cell_type("re_admission_indicator", options={"type": HL7_CodedWithException}),
+        make_cell_type("admit_source", options={"type": HL7_CodedWithException}),
         make_cell_type(
-            "hospital_service",
-            options={"type": HL7_CodedWithException}
+            "ambulatory_status", options={"type": HL7_CodedWithException, "repeats": True}
         ),
+        make_cell_type("vip_indicator", options={"type": HL7_CodedWithException}),
+        make_cell_type(
+            "admitting_doctor", options={
+                "type": hl7_data_types.HL7_XCN_ExtendedCompositeID, "repeats": True
+            }
+        ),
+        make_cell_type("patient_type", options={"type": HL7_CodedWithException}),
+        make_cell_type("visit_number", options={"type": HL7_ExtendedCompositeId}),
+        make_cell_type("financial_class", options={"type": hl7_data_types.HL7_FinancialClass}),
+        make_cell_type("charge_price_indicator", options={"type": HL7_CodedWithException}),
+        make_cell_type("courtesy_code", options={"type": HL7_CodedWithException}),
+        make_cell_type("credit_rating", options={"type": HL7_CodedWithException}),
+        make_cell_type("contract_code", options={"type": HL7_CodedWithException, "repeats": True}),
+        # next field is of unimplemented type Date (DT), implement if needed
+        make_cell_type("contract_effective_date", options={"repeats": True}),
+        make_cell_type("contract_amount", options={"repeats": True}),
+        make_cell_type("contract_period", options={"repeats": True}),
+        make_cell_type("interest_code", options={"type": HL7_CodedWithException}),
+        make_cell_type("transfer_to_bad_debt_code", options={"type": HL7_CodedWithException}),
+        # next field is of unimplemented type Date (DT), implement if needed
+        make_cell_type("transfer_to_bad_debt_date"),
+        make_cell_type("bad_debt_agency_code", options={"type": HL7_CodedWithException}),
+        make_cell_type("bad_debt_transfer_amount"),
+        make_cell_type("bad_debt_recovery_amount"),
+        make_cell_type("delete_account_indicator", options={"type": HL7_CodedWithException}),
+        # next field is of unimplemented type Date (DT), implement if needed
+        make_cell_type("delete_account_date"),
+        make_cell_type("discharge_disposition", options={"type": HL7_CodedWithException}),
+        # next field is of unimplemented type Discharge to location and date (DLD)
+        make_cell_type("discharged_to_location"),
+        make_cell_type("diet_type", options={"type": HL7_CodedWithException}),
+        make_cell_type("servicing_facility", options={"type": HL7_CodedWithException}),
+        make_cell_type("bed_status"),
+        make_cell_type("account_status", options={"type": HL7_CodedWithException}),
+        make_cell_type("pending_location", options={"type": HL7_PersonLocation}),
+        make_cell_type("prior_temporary_location", options={"type": HL7_PersonLocation}),
+        make_cell_type("admit_date", options={"type": HL7Datetime}),
+        make_cell_type("discharge_date", options={"type": HL7Datetime}),
+
     ],
 }
