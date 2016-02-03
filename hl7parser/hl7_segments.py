@@ -263,4 +263,26 @@ segment_maps = {
         make_cell_type("discharge_date", options={"type": HL7Datetime}),
 
     ],
+    "OBR": [
+        make_cell_type("set_id"),
+        make_cell_type("placer_order_number"),
+        make_cell_type("filler_order_number"),
+        make_cell_type("universal_service_identifier"),
+        make_cell_type("priority"),
+        make_cell_type("requested_datetime"),
+        make_cell_type("observation_datetime", options={"type": HL7Datetime}),
+    ],
+    "OBX": [
+        make_cell_type("set_id"),
+        make_cell_type("value_type"),
+        make_cell_type("observation_identifier"),
+        make_cell_type("observation_sub_id"),
+        make_cell_type("observation_value", options={"repeats": True}),
+        make_cell_type("units"),
+        make_cell_type("references_range"),
+        make_cell_type("abnormal_flags"),
+        make_cell_type("probability"),
+        make_cell_type("nature_of_abnormal_test"),
+        make_cell_type("observation_result_status"),
+    ],
 }
