@@ -284,5 +284,8 @@ segment_maps = {
         make_cell_type("probability"),
         make_cell_type("nature_of_abnormal_test"),
         make_cell_type("observation_result_status"),
+        make_cell_type("effective_date_of_reference_range"),
+        make_cell_type("user_defined_access_checks"),
+        make_cell_type("observation_datetime"),
     ],
 }
