@@ -243,14 +243,14 @@ class TestParsing(unittest.TestCase):
             unicode(segment.assigned_patient_location.bed), "01")
 
         self.assertEqual(
-            unicode(segment.attending_doctor.person_identifier), "004777")
+            unicode(segment.attending_doctor[0].person_identifier), "004777")
         self.assertEqual(
-            unicode(segment.attending_doctor.given_name), "AARON")
+            unicode(segment.attending_doctor[0].given_name), "AARON")
         self.assertEqual(
-            unicode(segment.attending_doctor.family_name), "ATTEND")
+            unicode(segment.attending_doctor[0].family_name), "ATTEND")
 
         self.assertEqual(
-            unicode(segment.attending_doctor.second_name), "A")
+            unicode(segment.attending_doctor[0].second_name), "A")
 
         self.assertEqual(
             unicode(segment.hospital_service), "SUR")
