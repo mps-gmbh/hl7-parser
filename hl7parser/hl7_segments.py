@@ -288,4 +288,29 @@ segment_maps = {
         make_cell_type("user_defined_access_checks"),
         make_cell_type("observation_datetime"),
     ],
+    "IN1": [
+        make_cell_type("set_id"),
+        make_cell_type(
+            "health_plan_id", options={"type": HL7_CodedWithException, "required": True}
+        ),
+        make_cell_type(
+            "insurance_company_id", options={
+                "type": HL7_ExtendedCompositeId, "required": True, "repeats": True
+            }
+        ),
+        make_cell_type("insurance_company_name"),
+        make_cell_type("insurance_company_address"),
+        make_cell_type("insurance_co_contact_person"),
+        make_cell_type("insurance_co_phone_number"),
+        make_cell_type("group_number"),
+        make_cell_type("group_name"),
+        make_cell_type("insureds_group_emp_id"),
+        make_cell_type("insureds_group_emp_name"),
+        make_cell_type("plan_effective_date", options={"type": HL7Datetime}),
+        make_cell_type("plan_expiration_date", options={"type": HL7Datetime}),
+        make_cell_type("authorization_information"),
+        make_cell_type("plan_type", options={"type": HL7_CodedWithException}),
+        # NOTE: standard defines more fields which can be added if needed in
+        # the future
+    ]
 }
