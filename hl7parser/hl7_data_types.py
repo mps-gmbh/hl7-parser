@@ -207,10 +207,15 @@ class HL7Datetime(HL7DataType):
             else: timezone = None  #noqa
 
             # TODO: consider timezone
-            self.datetime = datetime(
-                year, month, day, hour, minute, second, microsecond)
-            self.isNull = False
-            self.precision = precision
+            try:
+                self.datetime = datetime(
+                    year, month, day, hour, minute, second, microsecond)
+            except ValueError:
+                self.datetime = ""
+                self.isNull = True
+            else:
+                self.isNull = False
+                self.precision = precision
 
     def isoformat(self):
         if self.isNull:
