@@ -42,26 +42,28 @@ class TestParsing(unittest.TestCase):
     """
         Test parsing of HL7 messages
     """
-    maxDiff = None
+    msg_string1 = (
+        "MSH|^~\&|ADT1|GOOD HEALTH HOSPITAL|GHH LAB, INC.|GOOD HEALTH HOSPITAL|198808181126|SECURITY|ADT^A01^ADT_A01|MSG00001|P^default|2.7|\n"
+        "EVN|A01|200708181123||\n"
+        "PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C^Caucasian|&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|GL|(555) 555-2004|(555)555-2004||S|| PATID12345001^2^M10^ADT1^AN^A|444333333|987654^NC|\n"
+        "NK1|1|NUCLEAR^NELDA^W|SPO^SPOUSE||||NK^NEXT OF KIN\n"
+        "NK1|2|ATOMIC^NELLY^W|MOTHER||||NK^NEXT OF KIN\n"
+        "NK1|3|IVO^ISOTOPE^M|FATHER||||NK^NEXT OF KIN\n"
+        "PV1|1|I|2000^2012^01||||004777^ATTEND^AARON^A|||SUR||||ADM|A0|\n"
+        "LOL|45|hihi^blubber~hehe^blimm|dumdidum&dumdeldi^dubbel&debbel|"
+    )
 
-    msg_string1 = ("MSH|^~\&|ADT1|GOOD HEALTH HOSPITAL|GHH LAB, INC.|GOOD HEALTH HOSPITAL|198808181126|SECURITY|ADT^A01^ADT_A01|MSG00001|P^default|2.7|\n"
-               "EVN|A01|200708181123||\n"
-               "PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C^Caucasian|&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|GL|(555) 555-2004|(555)555-2004||S|| PATID12345001^2^M10^ADT1^AN^A|444333333|987654^NC|\n"
-               "NK1|1|NUCLEAR^NELDA^W|SPO^SPOUSE||||NK^NEXT OF KIN\n"
-               "NK1|2|ATOMIC^NELLY^W|MOTHER||||NK^NEXT OF KIN\n"
-               "PV1|1|I|2000^2012^01||||004777^ATTEND^AARON^A|||SUR||||ADM|A0|\n"
-               "LOL|45|hihi^blubber~hehe^blimm|dumdidum&dumdeldi^dubbel&debbel|"
-               )
+    msg_string2 = (
+        "MSH|^~\&|ADT1|GOOD HEALTH HOSPITAL|GHH LAB, INC.|GOOD HEALTH HOSPITAL|198808181126|SECURITY|ADT^A01^ADT_A01|MSG00001|P|2.7|\n"
+        "EVN|A01|200708181123||\n"
+        "PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C|&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|GL|(555) 555-2004|(555)555-2004||S|| PATID12345001^2^M10^ADT1^AN^A|444333333|987654^NC|"
+    )
 
-    msg_string2 = ("MSH|^~\&|ADT1|GOOD HEALTH HOSPITAL|GHH LAB, INC.|GOOD HEALTH HOSPITAL|198808181126|SECURITY|ADT^A01^ADT_A01|MSG00001|P|2.7|\n"
-               "EVN|A01|200708181123||\n"
-               "PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C|&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|GL|(555) 555-2004|(555)555-2004||S|| PATID12345001^2^M10^ADT1^AN^A|444333333|987654^NC|"
-               )
-
-    msg_mrg = ("MSH|^~\&|HNAM_PM|HNA500|AIG||20131016140148||ADT^A34|Q150084042T145948315C489644\n"
-               "PID|1||3790333^^^MSH_MRN^MRN^MTSN~2175611^^^MSH_EMPI^CMRN^UPLOAD|195511^^^IID^DONOR ID^MTSN~Q3790333^^^MSQ_MRN^KMRN|EVERYMAN^ADAM^J^^^^CURRENT||19580321|M|||77 CRANFORD COURT^^NEW YORK^NY^10038^USA^HOME^^040|040|(212)555-1212^HOM\n"
-               "MRG|3150123^^^MSH_MRN^MRN^MTSN|Q3150123"
-               )
+    msg_mrg = (
+        "MSH|^~\&|HNAM_PM|HNA500|AIG||20131016140148||ADT^A34|Q150084042T145948315C489644\n"
+        "PID|1||3790333^^^MSH_MRN^MRN^MTSN~2175611^^^MSH_EMPI^CMRN^UPLOAD|195511^^^IID^DONOR ID^MTSN~Q3790333^^^MSQ_MRN^KMRN|EVERYMAN^ADAM^J^^^^CURRENT||19580321|M|||77 CRANFORD COURT^^NEW YORK^NY^10038^USA^HOME^^040|040|(212)555-1212^HOM\n"
+        "MRG|3150123^^^MSH_MRN^MRN^MTSN|Q3150123"
+    )
 
     successful_query_result = "\n".join((
         "MSH|^~\&|pdv|krz|myappl|9270000|201411041444||ADR^A19|0001|P|2.2",
@@ -101,7 +103,6 @@ class TestParsing(unittest.TestCase):
         message = HL7Message(self.msg_string1)
         self.assertEqual(unicode(message.pid.patient_address), '&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros')
 
-
     def test_simple_segments_parse(self):
         message = HL7Message(self.msg_string1)
 
@@ -116,6 +117,7 @@ class TestParsing(unittest.TestCase):
 
         self.assertEqual(unicode(message.nk1[0]), lines[3])
         self.assertEqual(unicode(message.nk1[1]), lines[4])
+        self.assertEqual(unicode(message.nk1[2]), lines[5])
 
     def test_trailing_segment_fields(self):
         pid_string = "PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C|&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|GL|(555) 555-2004|(555)555-2004"
@@ -132,6 +134,7 @@ class TestParsing(unittest.TestCase):
         self.assertTrue(pid.set_id_pid)
         # named field unset
         self.assertFalse(pid.ssn_number_patient)
+        self.assertFalse(pid.ssn_number_patient[0])
         # HL7Datetime unset
         self.assertFalse(pid.datetime_of_birth)
         # list field set
@@ -155,6 +158,13 @@ class TestParsing(unittest.TestCase):
         # list field element unset
         self.assertFalse(pid[2][0])
 
+    def test_non_zero(self):
+        pid_string = "PID|1||PATID1234||EVERYMAN^ADAM^A^III||||||&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|"
+        pid = HL7Segment(pid_string)
+        assert not pid.patient_id
+        assert pid.patient_identifier_list[0]
+        assert pid.patient_name
+
     def test_message_parse(self):
         message = HL7Message(self.msg_string1)
 
@@ -162,7 +172,7 @@ class TestParsing(unittest.TestCase):
         expected_delimiters = HL7Delimiters('|', '^', '~', '\\', '&')
 
         self.assertEqual(unicode(expected_delimiters),
-                         unicode(message.delimiters))
+                         str(message.delimiters))
 
         # check patient data
         self.assertEqual("ADAM", unicode(message.pid.patient_name[0].given_name))
@@ -183,7 +193,6 @@ class TestParsing(unittest.TestCase):
         self.assertEqual("HOME STREET", unicode(message.pid.patient_address[0].street_address.street_name))
         self.assertEqual("Greensboro", unicode(message.pid.patient_address[0].city))
         self.assertEqual("Westeros", unicode(message.pid.patient_address[0].country))
-
 
         # check correct parsing of coded with exception
 
@@ -254,7 +263,3 @@ class TestParsing(unittest.TestCase):
 
         self.assertEqual(
             unicode(segment.hospital_service), "SUR")
-
-
-if __name__ == '__main__':
-    unittest.main()
