@@ -79,8 +79,6 @@ class HL7DataType(object):
                     break
             return self.delimiter.join(map(unicode, attrs))
 
-        return self.delimiter.join(self.sub_composites)
-
     def set_attributes(self, field_definitions, field_input):
         """
             sets the data in field_input to instance attributes
@@ -101,9 +99,6 @@ class HL7DataType(object):
                 )
             else:
                 setattr(self, name, None)
-
-    def __repr__(self):
-        return '<%s>' % self.__unicode__()
 
     def __getitem__(self, idx):
         return self.input_fields[idx]

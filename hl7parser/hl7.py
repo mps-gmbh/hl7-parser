@@ -188,8 +188,3 @@ class HL7Message(object):
 
     def __str__(self):
         return self.__unicode__().encode("utf-8")
-
-
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
