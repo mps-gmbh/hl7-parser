@@ -3,8 +3,9 @@ from setuptools import setup, find_packages
 
 setup(
     name='hl7parser',
-    version='0.5.11',
+    version='0.6.0',
     description='A simple HL7 parser',
+    long_description=open("README.md").read(),
     url='https://github.com/mps-gmbh/hl7-parser',
     author='Medizinische Planungssysteme GmbH',
     author_email='development@mps-med.de',
