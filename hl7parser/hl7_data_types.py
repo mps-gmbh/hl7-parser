@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from datetime import datetime
 
 
-def make_cell_type(name, options=None):
+def make_cell_type(name, options=None, index=None):
     """
     helper method used to configure HL7DataType field maps. Provides some
     sensible default values for HL7 data types.
@@ -12,7 +12,8 @@ def make_cell_type(name, options=None):
     default_options = {
         'required': False,
         'repeats': False,
-        'type': HL7DataType
+        'type': HL7DataType,
+        'index': index,
     }
     if options is None:
         options = {}

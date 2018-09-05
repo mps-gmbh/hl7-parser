@@ -264,15 +264,18 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(
             unicode(segment.hospital_service), "SUR")
 
+
 def test_in1_segment():
     message_data = (
-        "IN1|1:1|BKK|108035612|mhplus BKK|^^Ludwigsburg^^71636^DEU|||||"
-        "BKK093^1^^OKOG^J^1||20090101|||5000^1|XX^XX^F^^^^L||1953XXXX|"
-        "XXXX  10&XXXXX&10^^XXXXX^^77704^DEU^L||H|1|||||||20180829100800+0100"
-        "||||||1|Y2401XXXXX|||||||W||S||||Y2401XXXXX"
+        "IN1|1:1|McDH||McDonalds Health||||||"
+        "|||||||||"
+        "||||||||||"
+        "||||||1|12345|||||||||||||"
     )
 
     in1 = HL7Segment(message_data)
 
-    assert str(in1.health_plan_id) == "BKK"
-    assert str(in1.insurance_company_name) == "mhplus BKK"
+    assert str(in1.health_plan_id) == "McDH"
+    assert str(in1.insurance_company_name) == "McDonalds Health"
+
+    assert str(in1.policy_number) == "12345"

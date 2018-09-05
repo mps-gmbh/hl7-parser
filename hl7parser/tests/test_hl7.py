@@ -2,9 +2,10 @@
 from __future__ import unicode_literals
 
 import pytest
+import mock
 
 from hl7parser.hl7 import HL7Segment
-from hl7parser.hl7_data_types import HL7DataType, HL7Datetime
+from hl7parser.hl7_data_types import HL7DataType, HL7Datetime, make_cell_type
 
 
 def test_hl7_segment_require_length():
@@ -45,3 +46,19 @@ def test_hl7_segment_field_assignment_error():
 
     with pytest.raises(AttributeError):
         segment.something
+
+
+def test_invalid_segment_definition():
+    """ cell types with "index" definition must come at the end """
+
+    segment_maps = {
+        "foo": [
+            make_cell_type('foo'),
+            make_cell_type('bar', index=3),
+            make_cell_type('baz'),
+        ]
+    }
+
+    with mock.patch("hl7parser.hl7.segment_maps", segment_maps):
+        with pytest.raises(Exception):
+            HL7Segment("foo|1|2|3")
