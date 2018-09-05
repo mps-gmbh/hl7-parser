@@ -64,6 +64,7 @@ class HL7Delimiters(object):
 
 
 class HL7Segment(object):
+
     def __init__(self, segment, delimiters=None):
         if delimiters is None:
             self.delimiters = HL7Delimiters(*"|^~\&")
@@ -88,8 +89,18 @@ class HL7Segment(object):
 
         # iterate over predefined fields, remember index in `named_fields`
         # and initialize fields
+        index_override_found = False
         for index, definition in enumerate(self.field_definitions):
-            self.named_fields[definition[0]] = index
+            if definition[1]["index"] is not None:
+                definition_index = definition[1]["index"]
+                index_override_found = True
+            else:
+                if index_override_found:
+                    raise Exception("Regular cell type after one with index override found")
+                definition_index = index
+            self.named_fields[definition[0]] = definition_index
+            while len(self.fields) != definition_index:
+                self.fields.append(data_types.HL7DataType("", self.delimiters))
             self.fields.append(definition[1]["type"]("", self.delimiters))
 
         # fill fields with initial content
