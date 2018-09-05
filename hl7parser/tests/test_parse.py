@@ -108,7 +108,7 @@ class TestParsing(unittest.TestCase):
 
         pid_seg = self.msg_string1.splitlines()[2]
 
-        self.assertEqual(unicode(message.pid), pid_seg)
+        assert unicode(message.pid) == pid_seg
 
     def test_multiple_segments_parse(self):
         message = HL7Message(self.msg_string1)
@@ -120,7 +120,7 @@ class TestParsing(unittest.TestCase):
         self.assertEqual(unicode(message.nk1[2]), lines[5])
 
     def test_trailing_segment_fields(self):
-        pid_string = "PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C|&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|GL|(555) 555-2004|(555)555-2004"
+        pid_string = "PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C|&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|GL|(555) 555-2004|(555)555-2004|"
         pid = HL7Segment(pid_string)
         self.assertEqual(unicode(pid.ssn_number_patient), '')
         self.assertEqual(unicode(pid), pid_string)
@@ -263,3 +263,16 @@ class TestParsing(unittest.TestCase):
 
         self.assertEqual(
             unicode(segment.hospital_service), "SUR")
+
+def test_in1_segment():
+    message_data = (
+        "IN1|1:1|BKK|108035612|mhplus BKK|^^Ludwigsburg^^71636^DEU|||||"
+        "BKK093^1^^OKOG^J^1||20090101|||5000^1|XX^XX^F^^^^L||1953XXXX|"
+        "XXXX  10&XXXXX&10^^XXXXX^^77704^DEU^L||H|1|||||||20180829100800+0100"
+        "||||||1|Y2401XXXXX|||||||W||S||||Y2401XXXXX"
+    )
+
+    in1 = HL7Segment(message_data)
+
+    assert str(in1.health_plan_id) == "BKK"
+    assert str(in1.insurance_company_name) == "mhplus BKK"

@@ -30,6 +30,8 @@ ADT^A01^ADT_A01
 
 from __future__ import unicode_literals
 
+import re
+
 import hl7parser.hl7_data_types as data_types
 from hl7parser.hl7_segments import segment_maps
 
@@ -73,61 +75,93 @@ class HL7Segment(object):
         except UnicodeEncodeError:
             pass
 
-        # split into individual fields
-        self.fields = segment.split(self.delimiters.field_separator)
-        self.fields_length = len(self.fields)
+        # split initial content into individual fields
+        initial_content = segment.split(self.delimiters.field_separator)
 
         # the type of the segment is defined in the first field
-        self.type = self.fields[0]
+        self.type = initial_content[0]
+        self.fields = []
 
         # get the standard definitions for this type
-        field_definitions = segment_maps.get(self.type, None)
+        self.field_definitions = segment_maps.get(self.type, [])
+        self.named_fields = {}
 
-        # if definitions for this type are found iterate over
-        # fields in the input data
-        if field_definitions:
-            # Pad fields
-            self.fields += (
-                [''] * (len(field_definitions) + 1 - len(self.fields))
-            )
-            for index, field_definition in enumerate(field_definitions):
-                # get the field name
-                field_name = field_definition[0]
-                # get the field Type (defaults to HL7DataType)
-                DataType = field_definition[1]["type"]
-                value = self.fields[index + 1]
-                if not field_definition[1]["repeats"]:
-                    value = DataType(value, self.delimiters)
-                else:
-                    value = data_types.HL7RepeatingField(
-                        DataType, value, self.delimiters)
-                setattr(self, field_name, value)
-                self.fields[index + 1] = value
-        else:
-            # if the segment is unknown create a generic DataObject for each
-            # field
-            for index, value in enumerate(self.fields[1:]):
-                if self.delimiters.rep_separator in value:
-                    self.fields[index + 1] = data_types.HL7RepeatingField(
-                        data_types.HL7DataType, value, self.delimiters)
-                else:
-                    self.fields[index + 1] = data_types.HL7DataType(
-                        value, self.delimiters)
+        # iterate over predefined fields, remember index in `named_fields`
+        # and initialize fields
+        for index, definition in enumerate(self.field_definitions):
+            self.named_fields[definition[0]] = index
+            self.fields.append(definition[1]["type"]("", self.delimiters))
+
+        # fill fields with initial content
+        for index, content in enumerate(initial_content[1:]):
+            self[index] = content
 
     def __unicode__(self):
-        return self.delimiters.field_separator.join(
-            map(unicode, self.fields[0:self.fields_length]))
+        """
+            Generates the string representation of this message.
+            Trailing empty segments will be cut off.
+        """
+        field_separator = self.delimiters.field_separator
+        result = field_separator.join(map(unicode, [self.type] + self.fields))
+        result = re.sub(
+            "{0}+$".format(re.escape(field_separator)),
+            field_separator,
+            result
+        )
+        return result
 
     def __str__(self):
         return self.__unicode__().encode("utf-8")
 
     def __getitem__(self, idx):
         """ returns the requested component """
-        # shift index one down, since the type field is ignored
-        return self.fields[idx + 1]
+        return self.fields[idx]
+
+    def __getattr__(self, attr):
+        try:
+            return self[self.named_fields[attr]]
+        except (KeyError, IndexError):
+            raise AttributeError(attr)
+
+    def require_length(self, length):
+        """
+            Makes sure the segment has at least length "length".
+            If "length" is greater than the current length, new empty fields are added.
+
+            :param length:
+                The required length
+            :type length:
+                int
+        """
+        if length < len(self):
+            return
+        for _ in range(length - len(self)):
+            self.fields.append(data_types.HL7DataType("", self.delimiters))
+
+    def __setitem__(self, attr, value):
+        if isinstance(attr, int):
+            self.require_length(attr + 1)
+
+            try:
+                field_definition = self.field_definitions[attr][1]
+            except IndexError:
+                data_type = data_types.HL7DataType
+                repeats = self.delimiters.rep_separator in value
+            else:
+                data_type = field_definition["type"]
+                repeats = field_definition["repeats"]
+
+            if not repeats:
+                self.fields[attr] = data_type(value, self.delimiters)
+            else:
+                self.fields[attr] = data_types.HL7RepeatingField(
+                    data_type, value, self.delimiters
+                )
+        else:
+            raise TypeError("Segment indexes must be integers.")
 
     def __len__(self):
-        return len(self.fields) - 1
+        return len(self.fields)
 
 
 class HL7Message(object):
