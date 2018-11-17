@@ -8,7 +8,7 @@
 
 `hl7parser` is available through PyPi and can be installed using pip: `pip install hl7-parser`
 
-It is currently limited to Python 2.7, but Python 3 support will follow soon.
+It supports Python 2.7 and Python >=3.5 (as of version 0.7).
 
 ## Usage
 
@@ -36,7 +36,7 @@ It is currently limited to Python 2.7, but Python 3 support will follow soon.
 >>> msg.evn[1].isoformat()
 '2006-05-29T09:01:00'
 
-# repeating fields 
+# repeating fields
 >>> str(msg.pid.patient_name[0])
 'KLEINSAMPLE^BARRY^Q^JR'
 # subfields

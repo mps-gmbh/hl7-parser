@@ -2,40 +2,42 @@
 # -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
 
+from __future__ import absolute_import
 from hl7parser import HL7Message, HL7Segment, HL7Delimiters
 from hl7parser.hl7_data_types import HL7Datetime
 
 import unittest
+import six
+import sys
+import pytest
 
+@pytest.mark.skipif(sys.version_info.major > 2, reason="not relevant for python 3")
+def test_bytestring_segment():
+    """ bytestring segment can be cast to unicode and bytestring """
+    segment = HL7Segment(b"FOO|Baababamm")
+    str(segment)
+    six.text_type(segment)
 
-class TestEncoding(unittest.TestCase):
-    """
-    Test correct handling of bytestrings and unicode strings
-    """
+@pytest.mark.skipif(sys.version_info.major > 2, reason="not relevant for python 3")
+def test_unicode_segment():
+    """ unicode segment can be cast to unicode and bytestring """
+    segment = HL7Segment("FOO|Baababamm")
+    str(segment)
+    six.text_type(segment)
 
-    def test_bytestring_segment(self):
-        """ bytestring segment can be cast to unicode and bytestring """
-        segment = HL7Segment(b"FOO|Bääbabamm")
-        str(segment)
-        unicode(segment)
+@pytest.mark.skipif(sys.version_info.major > 2, reason="not relevant for python 3")
+def test_bytestring_message():
+    """ bytestring message can be cast to unicode and bytestring """
+    message = HL7Message(b"MSH|Dingdong the witch is dead\nFOO|Baababamm")
+    str(message)
+    six.text_type(message)
 
-    def test_unicode_segment(self):
-        """ unicode segment can be cast to unicode and bytestring """
-        segment = HL7Segment("FOO|Bääbabamm")
-        str(segment)
-        unicode(segment)
-
-    def test_bytestring_message(self):
-        """ bytestring message can be cast to unicode and bytestring """
-        message = HL7Message(b"MSH|Dingdong the witch is dead\nFOO|Bääbabamm")
-        str(message)
-        unicode(message)
-
-    def test_unicode_message(self):
-        """ unicode message can be cast to unicode and bytestring """
-        message = HL7Message("MSH|Dingdong the witch is dead\nFOO|Bääbabamm")
-        str(message)
-        unicode(message)
+@pytest.mark.skipif(sys.version_info.major > 2, reason="not relevant for python 3")
+def test_unicode_message():
+    """ unicode message can be cast to unicode and bytestring """
+    message = HL7Message("MSH|Dingdong the witch is dead\nFOO|Baababamm")
+    str(message)
+    six.text_type(message)
 
 
 class TestParsing(unittest.TestCase):
@@ -80,50 +82,50 @@ class TestParsing(unittest.TestCase):
     def test_successful_query_status(self):
         message = HL7Message(self.successful_query_result)
 
-        self.assertEqual(unicode(message.msa.acknowledgement_code), "AA")
+        self.assertEqual(six.text_type(message.msa.acknowledgement_code), "AA")
 
     def test_unsuccessful_query_status(self):
         message = HL7Message(self.insuccessful_query_result)
 
-        self.assertEqual(unicode(message.msa.acknowledgement_code), "AE")
-        self.assertEqual(unicode(message.msa.text_message), "2018")
+        self.assertEqual(six.text_type(message.msa.acknowledgement_code), "AE")
+        self.assertEqual(six.text_type(message.msa.text_message), "2018")
 
     def test_datetime(self):
         message = HL7Message(self.msg_string1)
-        self.assertEqual(unicode(message.pid.datetime_of_birth), '19610615')
+        self.assertEqual(six.text_type(message.pid.datetime_of_birth), '19610615')
         delimiters = HL7Delimiters(*"|^~\&")
         old = "18710826"
         dt = HL7Datetime(old, delimiters)
-        self.assertEqual(unicode(dt), old)
+        self.assertEqual(six.text_type(dt), old)
         time = "19610615132733.0065"
         dt = HL7Datetime(time, delimiters)
-        self.assertEqual(unicode(dt), time)
+        self.assertEqual(six.text_type(dt), time)
 
     def test_address(self):
         message = HL7Message(self.msg_string1)
-        self.assertEqual(unicode(message.pid.patient_address), '&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros')
+        self.assertEqual(six.text_type(message.pid.patient_address), '&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros')
 
     def test_simple_segments_parse(self):
         message = HL7Message(self.msg_string1)
 
         pid_seg = self.msg_string1.splitlines()[2]
 
-        assert unicode(message.pid) == pid_seg
+        assert six.text_type(message.pid) == pid_seg
 
     def test_multiple_segments_parse(self):
         message = HL7Message(self.msg_string1)
 
         lines = self.msg_string1.splitlines()
 
-        self.assertEqual(unicode(message.nk1[0]), lines[3])
-        self.assertEqual(unicode(message.nk1[1]), lines[4])
-        self.assertEqual(unicode(message.nk1[2]), lines[5])
+        self.assertEqual(six.text_type(message.nk1[0]), lines[3])
+        self.assertEqual(six.text_type(message.nk1[1]), lines[4])
+        self.assertEqual(six.text_type(message.nk1[2]), lines[5])
 
     def test_trailing_segment_fields(self):
         pid_string = "PID|1||PATID1234^5^M11^ADT1^MR^GOOD HEALTH HOSPITAL~123456789^^^USSSA^SS||EVERYMAN^ADAM^A^III||19610615|M||C|&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|GL|(555) 555-2004|(555)555-2004|"
         pid = HL7Segment(pid_string)
-        self.assertEqual(unicode(pid.ssn_number_patient), '')
-        self.assertEqual(unicode(pid), pid_string)
+        self.assertEqual(six.text_type(pid.ssn_number_patient), '')
+        self.assertEqual(six.text_type(pid), pid_string)
 
     def test_len(self):
         pid_string = "PID|1||PATID1234^^M11^ADT1^MR^HOSPITAL||EVERYMAN^ADAM^A^III||||||&HOME STREET&2^^Greensboro^NC^27401-1020^Westeros|"
@@ -171,13 +173,13 @@ class TestParsing(unittest.TestCase):
         # the expected delimiters
         expected_delimiters = HL7Delimiters('|', '^', '~', '\\', '&')
 
-        self.assertEqual(unicode(expected_delimiters),
+        self.assertEqual(six.text_type(expected_delimiters),
                          str(message.delimiters))
 
         # check patient data
-        self.assertEqual("ADAM", unicode(message.pid.patient_name[0].given_name))
-        self.assertEqual("ADAM", unicode(message.pid[4][0][1]))
-        self.assertEqual("EVERYMAN", unicode(message.pid.patient_name[0].family_name))
+        self.assertEqual("ADAM", six.text_type(message.pid.patient_name[0].given_name))
+        self.assertEqual("ADAM", six.text_type(message.pid[4][0][1]))
+        self.assertEqual("EVERYMAN", six.text_type(message.pid.patient_name[0].family_name))
         # unset fields should still exist as attributes
         self.assertTrue(message.pid.patient_name[0].prefix is None)
         self.assertTrue(message.pid.patient_name[0].name_representation_code is None)
@@ -185,32 +187,32 @@ class TestParsing(unittest.TestCase):
         # check correct parsing of extended composite ID
         self.assertEqual(2, len(message.pid.patient_identifier_list))
 
-        self.assertEqual("GOOD HEALTH HOSPITAL", unicode(message.pid.patient_identifier_list[0].assigning_facility))
-        self.assertEqual("123456789", unicode(message.pid.patient_identifier_list[1].id_number))
+        self.assertEqual("GOOD HEALTH HOSPITAL", six.text_type(message.pid.patient_identifier_list[0].assigning_facility))
+        self.assertEqual("123456789", six.text_type(message.pid.patient_identifier_list[1].id_number))
 
         # check correct parsing of extended adress
 
-        self.assertEqual("HOME STREET", unicode(message.pid.patient_address[0].street_address.street_name))
-        self.assertEqual("Greensboro", unicode(message.pid.patient_address[0].city))
-        self.assertEqual("Westeros", unicode(message.pid.patient_address[0].country))
+        self.assertEqual("HOME STREET", six.text_type(message.pid.patient_address[0].street_address.street_name))
+        self.assertEqual("Greensboro", six.text_type(message.pid.patient_address[0].city))
+        self.assertEqual("Westeros", six.text_type(message.pid.patient_address[0].country))
 
         # check correct parsing of coded with exception
 
-        self.assertEqual("Caucasian", unicode(message.pid.race[0].text))
+        self.assertEqual("Caucasian", six.text_type(message.pid.race[0].text))
 
         # check correct parsing of message type
 
-        self.assertEqual("A01", unicode(message.header.message_type.trigger_event))
-        self.assertEqual("ADT", unicode(message.header.message_type.message_code))
+        self.assertEqual("A01", six.text_type(message.header.message_type.trigger_event))
+        self.assertEqual("ADT", six.text_type(message.header.message_type.message_code))
 
         # check correct parsing of processing type
 
-        self.assertEqual("P", unicode(message.header.processing_id.processing_id))
-        self.assertEqual("default", unicode(message.header.processing_id.processing_mode))
+        self.assertEqual("P", six.text_type(message.header.processing_id.processing_id))
+        self.assertEqual("default", six.text_type(message.header.processing_id.processing_mode))
 
         # check correct parsing of version identifier
 
-        self.assertEqual("2.7", unicode(message.header.version_id.version_id))
+        self.assertEqual("2.7", six.text_type(message.header.version_id.version_id))
 
         def invalid_attr():
             message.foobar
@@ -220,49 +222,49 @@ class TestParsing(unittest.TestCase):
         message = HL7Message(self.msg_string1)
 
         # check parsing of unknown message
-        self.assertEqual("45", unicode(message.lol[0]))
-        self.assertEqual("blubber", unicode(message.lol[1][0][1]))
-        self.assertEqual("blubber", unicode(message.lol[1][0][1]))
-        self.assertEqual("hehe", unicode(message.lol[1][1][0]))
-        self.assertEqual("dumdeldi", unicode(message.lol[2][0][1]))
-        self.assertEqual("debbel", unicode(message.lol[2][1][1]))
+        self.assertEqual("45", six.text_type(message.lol[0]))
+        self.assertEqual("blubber", six.text_type(message.lol[1][0][1]))
+        self.assertEqual("blubber", six.text_type(message.lol[1][0][1]))
+        self.assertEqual("hehe", six.text_type(message.lol[1][1][0]))
+        self.assertEqual("dumdeldi", six.text_type(message.lol[2][0][1]))
+        self.assertEqual("debbel", six.text_type(message.lol[2][1][1]))
 
     def test_mrg_message_parse(self):
         message = HL7Message(self.msg_mrg)
-        self.assertEqual("A34", unicode(message.header.message_type.trigger_event))
+        self.assertEqual("A34", six.text_type(message.header.message_type.trigger_event))
         mrg = message.mrg
         self.assertTrue(mrg.prior_patient_identifier_list)
         self.assertEqual(1, len(mrg.prior_patient_identifier_list))
         self.assertTrue(mrg.prior_patient_identifier_list[0])
-        self.assertEqual("3150123", unicode(mrg.prior_patient_identifier_list[0].id_number))
-        self.assertEqual("Q3150123", unicode(mrg.prior_alternate_patient_id))
+        self.assertEqual("3150123", six.text_type(mrg.prior_patient_identifier_list[0].id_number))
+        self.assertEqual("Q3150123", six.text_type(mrg.prior_alternate_patient_id))
 
     def test_pv1_segment(self):
         segment = HL7Segment(
             "PV1|1|I|2000^2012^01||||004777^ATTEND^AARON^A|||SUR||||ADM|A0|"
         )
 
-        self.assertEqual(unicode(segment.patient_class), "I")
+        self.assertEqual(six.text_type(segment.patient_class), "I")
 
         self.assertEqual(
-            unicode(segment.assigned_patient_location.point_of_care), "2000")
+            six.text_type(segment.assigned_patient_location.point_of_care), "2000")
         self.assertEqual(
-            unicode(segment.assigned_patient_location.room), "2012")
+            six.text_type(segment.assigned_patient_location.room), "2012")
         self.assertEqual(
-            unicode(segment.assigned_patient_location.bed), "01")
+            six.text_type(segment.assigned_patient_location.bed), "01")
 
         self.assertEqual(
-            unicode(segment.attending_doctor[0].person_identifier), "004777")
+            six.text_type(segment.attending_doctor[0].person_identifier), "004777")
         self.assertEqual(
-            unicode(segment.attending_doctor[0].given_name), "AARON")
+            six.text_type(segment.attending_doctor[0].given_name), "AARON")
         self.assertEqual(
-            unicode(segment.attending_doctor[0].family_name), "ATTEND")
+            six.text_type(segment.attending_doctor[0].family_name), "ATTEND")
 
         self.assertEqual(
-            unicode(segment.attending_doctor[0].second_name), "A")
+            six.text_type(segment.attending_doctor[0].second_name), "A")
 
         self.assertEqual(
-            unicode(segment.hospital_service), "SUR")
+            six.text_type(segment.hospital_service), "SUR")
 
 
 def test_in1_segment():
