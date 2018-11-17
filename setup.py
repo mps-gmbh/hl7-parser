@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='hl7parser',
-    version='0.6.1',
+    version='0.7.0',
     description='A simple HL7 parser',
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
@@ -21,6 +21,9 @@ setup(
         'Topic :: Communications',
         'Topic :: Scientific/Engineering :: Medical Science Apps.',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
     keywords='hl7, Health Level 7, parser, medical record'
 )

@@ -18,25 +18,41 @@ S|| PATID12345001^2^M10^ADT1^AN^A|444333333|987654^NC|
 ... NK1|1|NUCLEAR^NELDA^W|SPO^SPOUSE||||NK^NEXT OF KIN
 ... PV1|1|I|2000^2012^01||||004777^ATTEND^AARON^A|||SUR||||ADM|A0|\"\"\"
 >>> message = HL7Message(sample_message)
->>> print message.pid.patient_name
+>>> print(message.pid.patient_name)
 EVERYMAN^ADAM^A^III~Conqueror^Norman^the^II
->>> print message.pid.patient_name[0].family_name
+>>> print(message.pid.patient_name[0].family_name)
 EVERYMAN
->>> print message.pid.patient_name[0].given_name
+>>> print(message.pid.patient_name[0].given_name)
 ADAM
->>> print message.msh.message_type
+>>> print(message.msh.message_type)
 ADT^A01^ADT_A01
 """
 
 from __future__ import unicode_literals
 
+from __future__ import absolute_import
 import re
+import sys
 
 import hl7parser.hl7_data_types as data_types
 from hl7parser.hl7_segments import segment_maps
+from six.moves import map
+import six
+from six.moves import range
 
+class UnicodeMixin(object):  # pragma: no cover
 
-class HL7Delimiters(object):
+  """Mixin class to handle defining the proper __str__/__unicode__
+  methods in Python 2 or 3."""
+
+  if sys.version_info[0] >= 3: # Python 3
+      def __str__(self):
+          return self.__unicode__()
+  else:  # Python 2
+      def __str__(self):
+          return self.__unicode__().encode('utf8')
+
+class HL7Delimiters(UnicodeMixin):
     """
         Represents a set of different separators as defined by the HL7 standard
     """
@@ -59,11 +75,8 @@ class HL7Delimiters(object):
                 self.rep_separator + self.escape_char +
                 self.subcomponent_separator)
 
-    def __str__(self):
-        return self.__unicode__()
 
-
-class HL7Segment(object):
+class HL7Segment(UnicodeMixin):
 
     def __init__(self, segment, delimiters=None):
         if delimiters is None:
@@ -71,10 +84,11 @@ class HL7Segment(object):
         else:
             self.delimiters = delimiters
 
-        try:
-            segment = segment.decode("utf-8")
-        except UnicodeEncodeError:
-            pass
+        if sys.version_info.major == 2:  # pragma: no cover
+            try:
+                segment = segment.decode("utf-8")
+            except UnicodeEncodeError:
+                pass
 
         # split initial content into individual fields
         initial_content = segment.split(self.delimiters.field_separator)
@@ -113,16 +127,13 @@ class HL7Segment(object):
             Trailing empty segments will be cut off.
         """
         field_separator = self.delimiters.field_separator
-        result = field_separator.join(map(unicode, [self.type] + self.fields))
+        result = field_separator.join(map(six.text_type, [self.type] + self.fields))
         result = re.sub(
             "{0}+$".format(re.escape(field_separator)),
             field_separator,
             result
         )
         return result
-
-    def __str__(self):
-        return self.__unicode__().encode("utf-8")
 
     def __getitem__(self, idx):
         """ returns the requested component """
@@ -175,7 +186,7 @@ class HL7Segment(object):
         return len(self.fields)
 
 
-class HL7Message(object):
+class HL7Message(UnicodeMixin):
     def __init__(self, message):
         self.message = message
         # list of segments of this message
@@ -228,8 +239,5 @@ class HL7Message(object):
                 .format(self.__class__, attr)
             )
 
-    def __unicode__(self):
-        return "\n".join([unicode(x[1]) for x in self.segments])
-
-    def __str__(self):
-        return self.__unicode__().encode("utf-8")
+    def __unicode__(self):  # pragma: no cover
+        return "\n".join([six.text_type(x[1]) for x in self.segments])

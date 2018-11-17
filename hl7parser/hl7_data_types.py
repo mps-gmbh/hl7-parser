@@ -1,7 +1,10 @@
 # -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
 
+from __future__ import absolute_import
 from datetime import datetime
+from six.moves import map
+import six
 
 
 def make_cell_type(name, options=None, index=None):
@@ -65,10 +68,10 @@ class HL7DataType(object):
         if not self.field_map:
             """ if value is defined, this is just a simple string data type """
             if hasattr(self, "value"):
-                return unicode(self.value)
+                return six.text_type(self.value)
             else:
                 return self.delimiter.join(
-                    unicode(x) for x in self.input_fields)
+                    six.text_type(x) for x in self.input_fields)
         else:
             attrs = []
             # collect all attributes which are defined
@@ -78,7 +81,7 @@ class HL7DataType(object):
                     attrs.append(value)
                 else:
                     break
-            return self.delimiter.join(map(unicode, attrs))
+            return self.delimiter.join(map(six.text_type, attrs))
 
     def set_attributes(self, field_definitions, field_input):
         """
@@ -115,6 +118,8 @@ class HL7DataType(object):
         elif len(self.input_fields) > 1:
             return True
 
+    def __bool__(self): # pragma: no cover
+        return self.__nonzero__()
 
 class HL7RepeatingField(object):
     """ generic repeating field """
@@ -134,9 +139,9 @@ class HL7RepeatingField(object):
         return self.list_[idx]
 
     def __unicode__(self):
-        return self.delimiters.rep_separator.join(map(unicode, self.list_))
+        return self.delimiters.rep_separator.join(map(six.text_type, self.list_))
 
-    def __str__(self):
+    def __str__(self): # pragma: no cover
         return self.__unicode__()
 
 
@@ -226,9 +231,9 @@ class HL7Datetime(HL7DataType):
             # HL7 dates are ISO 8601 without the decorators, i.e.
             # "YYYYMMDDHHMMSS.UUUU[+|-ZZzz]"
             return self.datetime.isoformat(
-                str('-')).translate(None, str("-:"))[:self.precision]
+                str('-')).replace("-", "").replace(":", "")[:self.precision]
 
-    def __unicode__(self):
+    def __unicode__(self):  # pragma: no cover
         return self.__str__()
 
     def __nonzero__(self):
