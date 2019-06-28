@@ -64,7 +64,7 @@ class TestParsing(unittest.TestCase):
     msg_mrg = (
         "MSH|^~\&|HNAM_PM|HNA500|AIG||20131016140148||ADT^A34|Q150084042T145948315C489644\n"
         "PID|1||3790333^^^MSH_MRN^MRN^MTSN~2175611^^^MSH_EMPI^CMRN^UPLOAD|195511^^^IID^DONOR ID^MTSN~Q3790333^^^MSQ_MRN^KMRN|EVERYMAN^ADAM^J^^^^CURRENT||19580321|M|||77 CRANFORD COURT^^NEW YORK^NY^10038^USA^HOME^^040|040|(212)555-1212^HOM\n"
-        "MRG|3150123^^^MSH_MRN^MRN^MTSN|Q3150123"
+        "MRG|3150123^^^MSH_MRN^MRN^MTSN^20131016140148^^^^|Q3150123"
     )
 
     successful_query_result = "\n".join((
@@ -269,7 +269,7 @@ class TestParsing(unittest.TestCase):
 
 def test_in1_segment():
     message_data = (
-        "IN1|1:1|McDH||McDonalds Health||||||"
+        "IN1|1:1|McDH|123456789^^^^^^^^^McDonalds Health|McDonalds Health||||||"
         "|||||||||"
         "||||||||||"
         "||||||1|12345|||||||||||||"
