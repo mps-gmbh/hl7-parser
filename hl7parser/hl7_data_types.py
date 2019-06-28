@@ -173,7 +173,7 @@ class HL7Datetime(HL7DataType):
     """
     component_map = ['datetime']
 
-    def __init__(self, composite, delimiter):
+    def __init__(self, composite, delimiter, use_delimiter="subcomponent_separator"):
         if len(composite) == 0:
             self.datetime = ""
             self.isNull = True
