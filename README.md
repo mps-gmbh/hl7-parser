@@ -4,6 +4,8 @@
 
 `hl7-parser` is a parser for HL7 ([Health Level 7](https://en.wikipedia.org/wiki/Health_Level_7)) messages. It also has limited support for constructing messages.
 
+To see what's new in each version, please refer to the `CHANGELOG.md` file in the repository.
+
 ## Installation
 
 `hl7parser` is available through PyPi and can be installed using pip: `pip install hl7-parser`
