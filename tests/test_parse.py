@@ -10,6 +10,8 @@ import unittest
 import six
 import sys
 import pytest
+import datetime
+
 
 @pytest.mark.skipif(sys.version_info.major > 2, reason="not relevant for python 3")
 def test_bytestring_segment():
@@ -241,7 +243,8 @@ class TestParsing(unittest.TestCase):
 
     def test_pv1_segment(self):
         segment = HL7Segment(
-            "PV1|1|I|2000^2012^01||||004777^ATTEND^AARON^A|||SUR||||ADM|A0|"
+            "PV1|1|I|2000^2012^01||123^^^^^^20190924143134&YYYYMMDDHHMMSS"
+            "||004777^ATTEND^AARON^A|||SUR||||ADM|A0|"
         )
 
         self.assertEqual(six.text_type(segment.patient_class), "I")
@@ -265,6 +268,9 @@ class TestParsing(unittest.TestCase):
 
         self.assertEqual(
             six.text_type(segment.hospital_service), "SUR")
+
+        self.assertEqual(
+            six.text_type(segment.preadmit_number.effective_date.datetime), "2019-09-24 14:31:34")
 
 
 def test_in1_segment():

@@ -168,12 +168,22 @@ class HL7Datetime(HL7DataType):
     """
         HL7 datetime data type
 
+        Complete Supports the DTM format and only partial support for the older TM format,
+        which is deprecated since hl7 2.6.
+        If the datetime is given in TM format the second component is ignored, because its not
+        reliable and the first component is treated like the DTM formatted datetime.
+
         example input:
             198808181126
     """
     component_map = ['datetime']
 
-    def __init__(self, composite, delimiter, use_delimiter="subcomponent_separator"):
+    def __init__(self, composite, delimiters, use_delimiter="component_separator"):
+
+        delimiter = getattr(delimiters, use_delimiter)
+        composite = composite.split(delimiter)
+        composite = composite[0]
+
         if len(composite) == 0:
             self.datetime = ""
             self.isNull = True
