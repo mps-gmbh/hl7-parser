@@ -276,7 +276,7 @@ class TestParsing(unittest.TestCase):
 def test_in1_segment():
     message_data = (
         "IN1|1:1|McDH|123456789^^^^^^^^^McDonalds Health|McDonalds Health||||||"
-        "|||||||||"
+        "|||||||||Königstr. 1B^^Stuttgart^^70173|"
         "||||||||||"
         "||||||1|12345|||||||||||||"
     )
@@ -287,3 +287,9 @@ def test_in1_segment():
     assert str(in1.insurance_company_name) == "McDonalds Health"
 
     assert str(in1.policy_number) == "12345"
+
+    insureds_address = in1.insureds_address
+    assert str(insureds_address) == "Königstr. 1B^^Stuttgart^^70173"
+    assert str(insureds_address.street_address) == "Königstr. 1B"
+    assert str(insureds_address.city) == "Stuttgart"
+    assert str(insureds_address.zip_or_postal_code) == "70173"
