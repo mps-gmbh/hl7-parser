@@ -310,7 +310,14 @@ segment_maps = {
         make_cell_type("plan_expiration_date", options={"type": HL7Datetime}),
         make_cell_type("authorization_information"),
         make_cell_type("plan_type", options={"type": HL7_CodedWithException}),
-        make_cell_type("policy_number", index=35)
+        make_cell_type("name_of_insured"),
+        make_cell_type("insureds_relationship_to_patient"),
+        make_cell_type("insureds_date_of_birth"),
+        make_cell_type(
+            "insureds_address",
+            options={"type": HL7_ExtendedAddress, "required": False, "repeats": False},
+        ),
+        make_cell_type("policy_number", index=36)
         # NOTE: standard defines more fields which can be added if needed in
         # the future
     ]
