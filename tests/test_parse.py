@@ -276,7 +276,7 @@ class TestParsing(unittest.TestCase):
 def test_in1_segment():
     message_data = (
         "IN1|1:1|McDH|123456789^^^^^^^^^McDonalds Health|McDonalds Health||||||"
-        "|||||||||Königstr. 1B^^Stuttgart^^70173|"
+        "||||||Musterfrau^Gertrud^^^^Dr.^L^A^|SEL|19700101|Königstr. 1B^^Stuttgart^^70173|"
         "||||||||||"
         "||||||1|12345|||||||||||||"
     )
@@ -287,6 +287,21 @@ def test_in1_segment():
     assert str(in1.insurance_company_name) == "McDonalds Health"
 
     assert str(in1.policy_number) == "12345"
+
+    name_of_insured = in1.name_of_insured
+    assert str(name_of_insured) == "Musterfrau^Gertrud^^^^Dr.^L^A^"
+    assert str(name_of_insured.family_name) == "Musterfrau"
+    assert str(name_of_insured.given_name) == "Gertrud"
+    assert str(name_of_insured.middle_name) == ''
+    assert str(name_of_insured.suffix) == ''
+    assert str(name_of_insured.prefix) == ''
+    assert str(name_of_insured.degree) == "Dr."
+    assert str(name_of_insured.name_type_code) == "L"
+    assert str(name_of_insured.name_representation_code) == "A"
+    assert str(name_of_insured.name_context) == ""
+
+    assert str(in1.insureds_relationship_to_patient) == "SEL"
+    assert str(in1.insureds_date_of_birth) == "19700101"
 
     insureds_address = in1.insureds_address
     assert str(insureds_address) == "Königstr. 1B^^Stuttgart^^70173"
