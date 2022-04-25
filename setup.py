@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="hl7parser",
-    version="0.7.2",
+    version="0.7.3",
     description="A simple HL7 parser",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
