@@ -251,7 +251,7 @@ segment_maps = {
             "insureds_address",
             options={"type": HL7_ExtendedAddress, "required": False, "repeats": False},
         ),
-        make_cell_type("policy_number", index=36)
+        make_cell_type("policy_number", index=35)
         # NOTE: standard defines more fields which can be added if needed in
         # the future
     ],

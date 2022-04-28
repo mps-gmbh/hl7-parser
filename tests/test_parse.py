@@ -288,7 +288,7 @@ def test_in1_segment():
         "IN1|1:1|McDH|123456789^^^^^^^^^McDonalds Health|McDonalds Health||||||"
         "||||||Musterfrau^Gertrud^^^^Dr.^L^A^|SEL|19700101|Königstr. 1B^^Stuttgart^^70173|"
         "||||||||||"
-        "||||||1|12345|||||||||||||"
+        "|||||1|12345||||||||||||||"
     )
 
     in1 = HL7Segment(message_data)
@@ -302,9 +302,9 @@ def test_in1_segment():
     assert str(name_of_insured) == "Musterfrau^Gertrud^^^^Dr.^L^A^"
     assert str(name_of_insured.family_name) == "Musterfrau"
     assert str(name_of_insured.given_name) == "Gertrud"
-    assert str(name_of_insured.middle_name) == ''
-    assert str(name_of_insured.suffix) == ''
-    assert str(name_of_insured.prefix) == ''
+    assert str(name_of_insured.middle_name) == ""
+    assert str(name_of_insured.suffix) == ""
+    assert str(name_of_insured.prefix) == ""
     assert str(name_of_insured.degree) == "Dr."
     assert str(name_of_insured.name_type_code) == "L"
     assert str(name_of_insured.name_representation_code) == "A"
