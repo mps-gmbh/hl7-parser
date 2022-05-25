@@ -1,6 +1,3 @@
-# -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
-
 import pytest
 
 from hl7parser.hl7 import HL7Delimiters
@@ -19,7 +16,7 @@ from hl7parser.hl7_data_types import HL7Datetime
 )
 def test_datetime(input_string, isoformat, string_repr):
 
-    delimiters = HL7Delimiters(*"|^~\&")
+    delimiters = HL7Delimiters(*"|^~\\&")
     dt = HL7Datetime(input_string, delimiters)
     assert dt.isoformat() == isoformat
     assert str(dt) == string_repr

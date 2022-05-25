@@ -1,10 +1,5 @@
 # -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
-
-from __future__ import absolute_import
 from datetime import datetime
-from six.moves import map
-import six
 
 
 def make_cell_type(name, options=None, index=None):
@@ -25,7 +20,7 @@ def make_cell_type(name, options=None, index=None):
     return (name, default_options)
 
 
-class HL7DataType(object):
+class HL7DataType:
     """ Generic HL7 data type, can be used as field data type or subfield data
     type. You can inherit from this class to define your own data types. Simply
     provide a field_map list to define the possible (sub)fields in this data
@@ -60,18 +55,15 @@ class HL7DataType(object):
                     )
 
     def __str__(self):
-        return self.__unicode__()
-
-    def __unicode__(self):
-        """ converts the datatype into a unicode string """
+        """ converts the datatype into a string """
 
         if not self.field_map:
             """ if value is defined, this is just a simple string data type """
             if hasattr(self, "value"):
-                return six.text_type(self.value)
+                return str(self.value)
             else:
                 return self.delimiter.join(
-                    six.text_type(x) for x in self.input_fields)
+                    str(x) for x in self.input_fields)
         else:
             attrs = []
             # collect all attributes which are defined
@@ -81,7 +73,7 @@ class HL7DataType(object):
                     attrs.append(value)
                 else:
                     break
-            return self.delimiter.join(map(six.text_type, attrs))
+            return self.delimiter.join(map(str, attrs))
 
     def set_attributes(self, field_definitions, field_input):
         """
@@ -121,7 +113,7 @@ class HL7DataType(object):
     def __bool__(self): # pragma: no cover
         return self.__nonzero__()
 
-class HL7RepeatingField(object):
+class HL7RepeatingField:
     """ generic repeating field """
     def __init__(self, Type, composite, delimiters):
 
@@ -138,12 +130,8 @@ class HL7RepeatingField(object):
     def __getitem__(self, idx):
         return self.list_[idx]
 
-    def __unicode__(self):
-        return self.delimiters.rep_separator.join(map(six.text_type, self.list_))
-
-    def __str__(self): # pragma: no cover
-        return self.__unicode__()
-
+    def __str__(self):
+        return self.delimiters.rep_separator.join(map(str, self.list_))
 
 class HL7_ExtendedPersonName(HL7DataType):
     """
@@ -258,7 +246,7 @@ class HL7_ExtendedCompositeId(HL7DataType):
     """ CX extended composite id with check digit """
 
     field_map = [
-        make_cell_type('id_number', options={"reqired": True}),
+        make_cell_type('id_number', options={"required": True}),
         make_cell_type('identifier_check_digit'),
         make_cell_type('check_digit_scheme'),
         make_cell_type('assigning_authority'),

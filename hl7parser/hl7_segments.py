@@ -1,6 +1,3 @@
-# -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
-
 from hl7parser import hl7_data_types
 from hl7parser.hl7_data_types import (
     HL7_CodedWithException,
