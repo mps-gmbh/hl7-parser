@@ -1,3 +1,6 @@
+## Version 0.7.4 (2022-05-25)
+
+* Fixes a regression introduced in 0.7.3
 ## Version 0.7.3 (2022-04-25)
 
 * Adds insured's address to IN1 segment
