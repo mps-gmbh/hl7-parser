@@ -19,10 +19,7 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Topic :: Communications",
         "Topic :: Scientific/Engineering :: Medical Science Apps.",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
     ],
     keywords="hl7, Health Level 7, parser, medical record",
 )
