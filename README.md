@@ -8,7 +8,7 @@ To see what's new in each version, please refer to the `CHANGELOG.md` file in th
 
 ## Installation
 
-`hl7parser` is available through PyPi and can be installed using pip: `pip install hl7-parser`
+`hl7parser` is available through PyPi and can be installed using pip: `pip install hl7parser`
 
 It supports Python 2.7 and Python >=3.5 (as of version 0.7).
 
