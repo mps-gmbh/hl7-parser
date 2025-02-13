@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
-from datetime import datetime
+import re
+from datetime import datetime, timedelta, timezone
 
 
 def make_cell_type(name, options=None, index=None):
@@ -156,9 +157,9 @@ class HL7Datetime(HL7DataType):
     """
         HL7 datetime data type
 
-        Complete Supports the DTM format and only partial support for the older TM format,
+        Supports the DTM format and only partial support for the older TM format,
         which is deprecated since hl7 2.6.
-        If the datetime is given in TM format the second component is ignored, because its not
+        If the datetime is given in TM format the second component is ignored, because it's not
         reliable and the first component is treated like the DTM formatted datetime.
 
         example input:
@@ -166,55 +167,60 @@ class HL7Datetime(HL7DataType):
     """
     component_map = ['datetime']
 
-    def __init__(self, composite, delimiters, use_delimiter="component_separator"):
+    datetime = None
 
+    def __init__(self, composite, delimiters, use_delimiter="component_separator"):
         delimiter = getattr(delimiters, use_delimiter)
         composite = composite.split(delimiter)
         composite = composite[0]
 
-        if len(composite) == 0:
-            self.datetime = ""
+        self.hasTimeZoneInfo = False
+        self.hasMicrosecondsInfo = False
+
+        m = re.match(r'(?P<base>\d+)(?P<microseconds>\.\d+)?(?P<timezone>[+-]\d+)?', composite)
+
+        if not m:
             self.isNull = True
-        else:
-            precision = len(composite)
-            year = int(composite[0:4])
+            return
 
-            if precision >= 6: month = int(composite[4:6])  # noqa
-            else: month = 1  #noqa
+        precision = len(m.group('base'))
+        if m.group('microseconds'):
+            self.hasMicrosecondsInfo = True
+            precision += len(m.group('microseconds')) - 1
+        year = int(composite[0:4])
 
-            if precision >= 8: day = int(composite[6:8])  # noqa
-            else: day = 1  #noqa
+        if precision >= 6: month = int(composite[4:6])  # noqa
+        else: month = 1  #noqa
 
-            if precision >= 10: hour = int(composite[8:10])  #noqa
-            else: hour = 0  #noqa
+        if precision >= 8: day = int(composite[6:8])  # noqa
+        else: day = 1  #noqa
 
-            if precision >= 12: minute = int(composite[10:12])  # noqa
-            else: minute = 0  # noqa
+        if precision >= 10: hour = int(composite[8:10])  #noqa
+        else: hour = 0  #noqa
 
-            if precision >= 14: second = int(composite[12:14])  # noqa
-            else: second = 0  # noqa
+        if precision >= 12: minute = int(composite[10:12])  # noqa
+        else: minute = 0  # noqa
 
-            # Skip the "." separator
-            if precision >= 17: tenth_second = int(composite[15:17])  # noqa
-            else: tenth_second = 0  # noqa
+        if precision >= 14: second = int(composite[12:14])  # noqa
+        else: second = 0  # noqa
 
-            if precision >= 19:
-                microsecond = int(composite[17:19]) * 100
-            else: microsecond = 0  #noqa
+        # parse timezone and microsecond information
+        microseconds = 0
+        tzinfo = None
 
-            if precision == 24: timezone = composite[19:24]  # noqa
-            else: timezone = None  #noqa
+        if m.group("microseconds"):
+            microseconds = int(float(m.group("microseconds")) * 1_000_000)
+        if m.group("timezone"):
+            self.hasTimeZoneInfo = True
+            tz = m.group("timezone")
+            sign = -1 if tz[0] == "-" else 1
+            tzinfo = timezone(sign * timedelta(hours=int(tz[1:3]), minutes=int(tz[3:5])))
 
-            # TODO: consider timezone
-            try:
-                self.datetime = datetime(
-                    year, month, day, hour, minute, second, microsecond)
-            except ValueError:
-                self.datetime = ""
-                self.isNull = True
-            else:
-                self.isNull = False
-                self.precision = precision
+        self.datetime = datetime(
+            year, month, day, hour, minute, second, microseconds, tzinfo
+        )
+        self.isNull = False
+        self.precision = precision
 
     def isoformat(self):
         if self.isNull:
@@ -226,10 +232,20 @@ class HL7Datetime(HL7DataType):
         if self.isNull:
             return ""
         else:
-            # HL7 dates are ISO 8601 without the decorators, i.e.
+            # HL7 dates are ISO 8601 without the decorators and max 4 decimal places
             # "YYYYMMDDHHMMSS.UUUU[+|-ZZzz]"
-            return self.datetime.isoformat(
-                str('-')).replace("-", "").replace(":", "")[:self.precision]
+            result = self.datetime.isoformat("-").replace("-", "").replace(":", "")[:min(self.precision, 14)]
+            if self.hasMicrosecondsInfo:
+                result += "." + str(self.datetime.microsecond).zfill(6)[:self.precision - 14]
+            if self.hasTimeZoneInfo:
+                # Add timezone info in the format "[-+]HHMM"
+                utc_offset = self.datetime.utcoffset()
+                total_seconds = utc_offset.total_seconds()
+                hours, remainder = divmod(total_seconds, 3600)
+                minutes = remainder // 60
+                utc_offset_str = f"{int(hours):+03}{int(minutes):02}"
+                result += utc_offset_str
+            return result
 
     def __unicode__(self):  # pragma: no cover
         return self.__str__()
