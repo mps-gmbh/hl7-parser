@@ -1,3 +1,8 @@
+## Version 0.7.5 (2025-02-13)
+
+* Adds timezone support to HL7Datetime #31
+* Fix Typo in installation instruction #30 (thanks joshy)
+
 ## Version 0.7.4 (2022-05-25)
 
 * Fixes a regression introduced in 0.7.3
